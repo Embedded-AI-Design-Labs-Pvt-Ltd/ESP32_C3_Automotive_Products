@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AEGW-C3 Architecture Portal</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+<div class="shell">
+  <aside id="nav"></aside>
+  <main>
+    <h1 class="page">Architecture portal</h1>
+    <p class="lead">Phase 2 architecture is complete. Host unit tests and the docs checker are runnable via <code>tools/scripts/run_all.ps1</code>.</p>
+
+    <div class="banner warn">
+      <strong>Repository analysis.</strong> On 2026-08-26 the workspace
+      <code>e:\Sami\ESP32_C3_Automotive_Products</code> contained no source, no ESP-IDF project, and no prior documents.
+      This is a greenfield platform. The folder tree and these pages are the first artifacts.
+    </div>
+
+    <h2>Governing rule</h2>
+    <p>Do not build 17 separate projects. Build one core platform, then compose products.</p>
+    <div class="layers">
+      <div class="layer"><b>One core</b><span>HAL, BSP, drivers, FreeRTOS IPC, CAN, BLE, UART, GPIO, I2C, SPI, ISO-TP, UDS, diagnostics, logging, configuration, security, bootloader, tests</span></div>
+      <div class="layer"><b>Products</b><span>Gateway, OBD, UDS tester, logger, test box, simulator, fault injection, EOL, HIL, EV battery, IDS, training kit</span></div>
+      <div class="layer"><b>Ports</b><span>ESP32-C3 (primary), Virtual ECU / GUI (no hardware), Arduino, Raspberry Pi 5</span></div>
+    </div>
+
+    <h2>Approval package</h2>
+    <table>
+      <tr><th>#</th><th>Document</th><th>Decision needed</th></tr>
+      <tr><td>1</td><td><a href="pages/01-architecture.html">System architecture</a></td><td>Layering, reusable vs product-specific</td></tr>
+      <tr><td>2</td><td><a href="pages/02-requirements.html">Requirements</a></td><td>Scope of prototype vs later ports/cloud</td></tr>
+      <tr><td>3</td><td><a href="pages/03-software-architecture.html">Software architecture</a></td><td>C vs C++, module map</td></tr>
+      <tr><td>4</td><td><a href="pages/04-task-architecture.html">Task architecture</a></td><td>Priorities, stacks, IPC choices</td></tr>
+      <tr><td>5</td><td><a href="pages/05-data-flow.html">Data-flow architecture</a></td><td>Frame and diagnostic paths</td></tr>
+      <tr><td>6</td><td><a href="pages/06-control-flow.html">Control-flow architecture</a></td><td>Boot, fault, UDS, OTA state machines</td></tr>
+      <tr><td>7</td><td><a href="pages/07-interfaces.html">Interface definitions</a></td><td>Header contracts before code</td></tr>
+      <tr><td>8</td><td><a href="pages/08-repository-structure.html">Repository structure</a></td><td>Folder and ESP-IDF component layout</td></tr>
+      <tr><td>9</td><td><a href="pages/09-roadmap.html">Development roadmap</a></td><td>20 phases, exit criteria</td></tr>
+      <tr><td>10</td><td><a href="pages/10-agent-breakdown.html">Agent / task breakdown</a></td><td>Who implements what, in order</td></tr>
+    </table>
+
+    <h2>Also in this portal</h2>
+    <ul>
+      <li><a href="pages/11-automotive-scenarios.html">Prototype CAN database</a> — BCM, VCU, BMS, IC, tester (simulated IDs)</li>
+      <li><a href="pages/12-sequential-flows.html">Sequential flows</a> — boot, gateway, UDS, HIL, OTA, fault</li>
+      <li><a href="presentation.html">Presentation deck</a> — keyboard left/right</li>
+    </ul>
+
+    <h2>What is deferred</h2>
+    <p>No C/C++ firmware, no Docker images, no Jenkins jobs, no Terraform apply, and no Arduino/Pi ports until this package is approved. After approval, implementation is module-by-module starting at Phase 3 (BSP/HAL).</p>
+
+    <footer class="note">AEGW-C3 prototype platform. Not ISO 26262, not UNECE WP.29 certified, not production cybersecurity.</footer>
+  </main>
+</div>
+<script src="assets/nav.js"></script>
+</body>
+</html>

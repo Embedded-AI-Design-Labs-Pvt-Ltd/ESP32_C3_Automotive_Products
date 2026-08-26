@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>07 Interface definitions — AEGW-C3</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div class="shell">
+  <aside id="nav"></aside>
+  <main>
+    <h1 class="page">07 Interface definitions</h1>
+    <p class="lead">Contracts only. These headers will be implemented after approval. Names are stable so agents do not invent parallel APIs.</p>
+
+    <h2>1. Status and errors</h2>
+    <pre>typedef int32_t ae_status_t;
+#define AE_OK 0
+/* module in high byte: HAL 0x01, DRV 0x02, OS 0x03, CAN 0x10,
+   BLE 0x11, ISOTP 0x12, UDS 0x13, DTC 0x14, SEC 0x15, OTA 0x16, APP 0x20 */</pre>
+
+    <h2>2. HAL (selected)</h2>
+    <pre>ae_status_t hal_can_init(const ae_can_cfg_t *cfg);
+ae_status_t hal_can_send(const ae_can_frame_t *frame, uint32_t timeout_ms);
+ae_status_t hal_can_set_filter(const ae_can_filter_t *filters, uint8_t count);
+typedef void (*ae_can_rx_isr_cb_t)(const ae_can_frame_t *frame, void *ctx);
+/* ISR callback only enqueues */
+
+ae_status_t hal_uart_init(const ae_uart_cfg_t *cfg);
+ae_status_t hal_uart_write(const uint8_t *buf, size_t len, uint32_t timeout_ms);
+
+ae_status_t hal_gpio_init(const ae_gpio_cfg_t *cfg);
+ae_status_t hal_gpio_write(uint32_t pin, uint8_t level);
+ae_status_t hal_gpio_attach_isr(uint32_t pin, ae_gpio_isr_cb_t cb, void *ctx);
+
+ae_status_t hal_i2c_read(uint8_t addr, uint8_t *buf, size_t len, uint32_t to);
+ae_status_t hal_spi_xfer(const uint8_t *tx, uint8_t *rx, size_t len, uint32_t to);
+ae_status_t hal_adc_read(uint8_t ch, uint16_t *mv);
+ae_status_t hal_nvs_get(const char *key, void *buf, size_t *len);
+ae_status_t hal_wdg_kick(void);</pre>
+
+    <h2>3. CAN service (not the driver)</h2>
+    <pre>ae_status_t can_svc_init(const can_svc_cfg_t *cfg);
+ae_status_t can_svc_subscribe(uint32_t id, can_svc_rx_cb_t cb, void *ctx);
+ae_status_t can_svc_send(const ae_can_frame_t *frame, uint32_t timeout_ms);
+ae_status_t can_svc_expect(uint32_t id, uint32_t period_ms, uint32_t timeout_ms);
+ae_status_t can_svc_get_stats(can_svc_stats_t *out);
+/* stats: rx, tx, drop, bus_off, error_warning, missing, unexpected */</pre>
+
+    <h2>4. ISO-TP / UDS</h2>
+    <pre>ae_status_t isotp_init(const isotp_cfg_t *cfg); /* tx_id, rx_id, stmin, bs */
+ae_status_t isotp_send(const uint8_t *pdu, uint16_t len);
+ae_status_t isotp_on_can_frame(const ae_can_frame_t *frame);
+typedef void (*isotp_pdu_cb_t)(const uint8_t *pdu, uint16_t len, void *ctx);
+
+ae_status_t uds_server_init(const uds_server_cfg_t *cfg);
+ae_status_t uds_client_request(uint8_t sid, const uint8_t *data, uint16_t len);
+ae_status_t uds_register_did(uint16_t did, uds_did_read_t rd, uds_did_write_t wr);
+ae_status_t uds_register_routine(uint16_t rid, uds_routine_t fn);</pre>
+
+    <h2>5. BLE automotive service</h2>
+    <pre>/* Characteristics (UUID prototype, not SIG assigned) */
+AE_BLE_CHAR_CAN_CMD
+AE_BLE_CHAR_DIAG_CMD
+AE_BLE_CHAR_VEHICLE_STATUS
+AE_BLE_CHAR_BATT_STATUS
+AE_BLE_CHAR_DTC
+AE_BLE_CHAR_CONFIG
+AE_BLE_CHAR_SENSOR
+AE_BLE_CHAR_LOGGER
+
+ae_status_t ble_auto_init(const ble_auto_cfg_t *cfg);
+ae_status_t ble_auto_notify(uint16_t char_id, const uint8_t *data, uint16_t len);
+typedef void (*ble_auto_write_cb_t)(uint16_t char_id, const uint8_t *data, uint16_t len);</pre>
+
+    <h2>6. Diagnostics and fault</h2>
+    <pre>ae_status_t dtc_raise(uint32_t code, dtc_severity_t sev);
+ae_status_t dtc_clear(uint32_t mask);
+ae_status_t dtc_read(dtc_record_t *out, uint8_t *count);
+
+ae_status_t fault_report(fault_id_t id, fault_action_t hint);
+ae_status_t fault_get_state(fault_state_t *out); /* NORMAL..SAFE */</pre>
+
+    <h2>7. IPC envelope</h2>
+    <pre>typedef struct {
+  uint8_t  src;
+  uint8_t  dst;
+  uint16_t type;
+  uint32_t ts_us;
+  uint16_t len;
+  uint8_t  payload[AE_IPC_MAX]; /* or pool pointer + flag */
+} ae_msg_t;
+
+ae_status_t ipc_send(QueueHandle_t q, const ae_msg_t *msg, uint32_t to);
+ae_status_t ipc_recv(QueueHandle_t q, ae_msg_t *msg, uint32_t to);</pre>
+    <p>FreeRTOS types appear only in middleware headers. Protocols take function pointers for send/recv so they stay portable.</p>
+
+    <h2>8. Thread-safety matrix</h2>
+    <table>
+      <tr><th>API</th><th>ISR</th><th>Multi-task</th></tr>
+      <tr><td>hal_can RX callback</td><td>yes (short)</td><td>n/a</td></tr>
+      <tr><td>hal_can_send</td><td>no</td><td>yes (mutex)</td></tr>
+      <tr><td>can_svc_send</td><td>no</td><td>yes</td></tr>
+      <tr><td>ae_log_write</td><td>yes (drop if full)</td><td>yes</td></tr>
+      <tr><td>dtc_raise</td><td>no</td><td>yes (mutex)</td></tr>
+      <tr><td>uds_client_request</td><td>no</td><td>single owner task</td></tr>
+    </table>
+
+    <footer class="note">Document 07 of 10 · Architecture package</footer>
+  </main>
+</div>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

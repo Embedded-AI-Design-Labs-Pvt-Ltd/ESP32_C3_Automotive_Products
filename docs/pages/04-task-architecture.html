@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>04 Task architecture — AEGW-C3</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div class="shell">
+  <aside id="nav"></aside>
+  <main>
+    <h1 class="page">04 Task architecture</h1>
+    <p class="lead">FreeRTOS catalog. Higher numeric priority runs first (ESP-IDF). Not every product creates every task.</p>
+
+    <div class="banner warn">Stacks are <strong>targets</strong> for ESP32-C3 and will be confirmed with watermarks in Phase 17. Priority inversion is avoided by mutex inheritance and by never taking a mutex in an ISR.</div>
+
+    <h2>1. Task catalog</h2>
+    <table>
+      <tr>
+        <th>Task</th><th>Prio</th><th>Stack</th><th>Period</th><th>Exec target</th>
+        <th>Block on</th><th>In</th><th>Out</th><th>Sync</th><th>On failure</th>
+      </tr>
+      <tr>
+        <td>Watchdog</td><td>9</td><td>1536</td><td>100 ms</td><td>&lt; 200 µs</td>
+        <td>delay</td><td>health bits</td><td>WDT kick / reset reason</td><td>event group read</td>
+        <td>Do not kick; MCU reset</td>
+      </tr>
+      <tr>
+        <td>CAN RX</td><td>8</td><td>3072</td><td>event</td><td>&lt; 80 µs/frame</td>
+        <td>RX queue</td><td>ISR queue</td><td>CAN pub</td><td>queue from ISR</td>
+        <td>Drop + stat; DTC comms</td>
+      </tr>
+      <tr>
+        <td>CAN TX</td><td>7</td><td>2048</td><td>event</td><td>&lt; 100 µs/frame</td>
+        <td>TX queue</td><td>service TX q</td><td>hal_can</td><td>mutex + queue</td>
+        <td>Retry / bus-off policy</td>
+      </tr>
+      <tr>
+        <td>ISO-TP</td><td>6</td><td>4096</td><td>event + tick</td><td>&lt; 200 µs</td>
+        <td>CAN frames + timer</td><td>CAN pub</td><td>UDS PDU q</td><td>queue + sw timer</td>
+        <td>Abort session; N_TIMEOUT</td>
+      </tr>
+      <tr>
+        <td>UDS</td><td>5</td><td>4096</td><td>event</td><td>&lt; 500 µs</td>
+        <td>PDU queue</td><td>ISO-TP</td><td>DID/DTC/TX</td><td>queue</td>
+        <td>NRC; stay in last good session</td>
+      </tr>
+      <tr>
+        <td>BLE</td><td>4</td><td>4096</td><td>event</td><td>stack-limited</td>
+        <td>BLE events</td><td>NimBLE cb</td><td>gateway/UDS q</td><td>queue from cb</td>
+        <td>Disconnect; reconnect SM</td>
+      </tr>
+      <tr>
+        <td>UART</td><td>3</td><td>2048</td><td>event</td><td>&lt; 150 µs</td>
+        <td>notify + ring</td><td>UART ISR</td><td>cmd / log</td><td>notify + mutex TX</td>
+        <td>Flush; overflow count</td>
+      </tr>
+      <tr>
+        <td>Sensor</td><td>3</td><td>2048</td><td>10–100 ms</td><td>&lt; 1 ms</td>
+        <td>delay / GPIO</td><td>I2C/SPI/ADC</td><td>CAN/BLE pub</td><td>mutex bus</td>
+        <td>DTC sensor; last-good</td>
+      </tr>
+      <tr>
+        <td>Vehicle state</td><td>3</td><td>2048</td><td>10–50 ms</td><td>&lt; 300 µs</td>
+        <td>delay + CAN</td><td>CAN signals</td><td>IC/BMS model</td><td>queue</td>
+        <td>Hold last; timeout DTC</td>
+      </tr>
+      <tr>
+        <td>Diagnostic</td><td>3</td><td>2048</td><td>50 ms</td><td>&lt; 400 µs</td>
+        <td>delay</td><td>faults</td><td>DTC table</td><td>mutex table</td>
+        <td>Keep confirmed DTCs</td>
+      </tr>
+      <tr>
+        <td>Logger</td><td>2</td><td>3072</td><td>event</td><td>best effort</td><td>log ring</td>
+        <td>all tasks</td><td>UART/BLE</td><td>ISR-safe ring</td>
+        <td>Drop oldest; count</td>
+      </tr>
+      <tr>
+        <td>Config</td><td>2</td><td>2048</td><td>event</td><td>&lt; 5 ms NVS</td>
+        <td>request q</td><td>UDS 0x2E</td><td>NVS</td><td>mutex + q</td>
+        <td>Reject write; keep old</td>
+      </tr>
+      <tr>
+        <td>Health</td><td>1</td><td>2048</td><td>200 ms</td><td>&lt; 400 µs</td>
+        <td>delay</td><td>heartbeats</td><td>event group</td><td>task notify in</td>
+        <td>Set fault bit; WDT path</td>
+      </tr>
+    </table>
+
+    <h2>2. Why each synchronization primitive</h2>
+    <table>
+      <tr><th>Primitive</th><th>Used for</th><th>Not used for</th></tr>
+      <tr><td>Queue</td><td>Frames, PDUs, BLE commands — ownership transfer</td><td>Single-bit events</td></tr>
+      <tr><td>Binary semaphore</td><td>GPIO edge, TX-complete (optional)</td><td>Data payloads</td></tr>
+      <tr><td>Counting semaphore</td><td>Static pool free slots</td><td>Mutual exclusion</td></tr>
+      <tr><td>Mutex (inheritance)</td><td>TWAI TX, I2C/SPI bus, DTC table</td><td>ISR</td></tr>
+      <tr><td>Event group</td><td>Health / fault bitmap</td><td>High-rate frames</td></tr>
+      <tr><td>Task notification</td><td>UART RX available, heartbeat poke</td><td>Multi-consumer</td></tr>
+      <tr><td>Software timer</td><td>ISO-TP N_As/N_Cr, UDS S3, tester present</td><td>Heavy callbacks</td></tr>
+    </table>
+
+    <h2>3. Deadlock and inversion rules</h2>
+    <ol>
+      <li>Lock order is global: HAL bus mutex → table mutex. Never reverse.</li>
+      <li>A task holds at most one mutex while calling into a lower layer that may block.</li>
+      <li>CAN TX task never calls BLE stack APIs (priority / stack inversion risk).</li>
+      <li>Logger never takes driver mutexes; it only drains a ring.</li>
+      <li>Watchdog never blocks on a mutex; it only reads atomics / event bits.</li>
+    </ol>
+
+    <h2>4. Task-state view (canonical worker)</h2>
+    <pre class="sm">INIT --create--> BLOCKED(queue/notify/delay)
+BLOCKED --event--> RUNNING
+RUNNING --work done--> BLOCKED
+RUNNING --error budget--> FAULT_REPORT --> BLOCKED
+RUNNING --stack overflow hook--> RESET
+BLOCKED --timeout--> TIMEOUT_HANDLER --> BLOCKED</pre>
+
+    <h2>5. Product subsets</h2>
+    <table>
+      <tr><th>Product</th><th>Required tasks</th></tr>
+      <tr><td>BLE-CAN gateway</td><td>WDT, CAN RX/TX, BLE, Logger, Health</td></tr>
+      <tr><td>UDS tester / simulator</td><td>WDT, CAN RX/TX, ISO-TP, UDS, Logger, Health, Diagnostic</td></tr>
+      <tr><td>CAN logger</td><td>WDT, CAN RX, Logger, UART, Health</td></tr>
+      <tr><td>Sensor / TPMS / EV GW</td><td>WDT, CAN RX/TX, Sensor or BLE, Vehicle, Logger, Health</td></tr>
+      <tr><td>HIL / EOL / fault box</td><td>WDT, CAN RX/TX, UART, Sensor/GPIO, Logger, Health, Config</td></tr>
+      <tr><td>Training kit</td><td>Superset with Virtual ECU; still compile-time trimmed on device</td></tr>
+    </table>
+
+    <footer class="note">Document 04 of 10 · Architecture package</footer>
+  </main>
+</div>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

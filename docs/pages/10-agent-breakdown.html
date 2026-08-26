@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>10 Agent / task breakdown — AEGW-C3</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div class="shell">
+  <aside id="nav"></aside>
+  <main>
+    <h1 class="page">10 Agent / task breakdown</h1>
+    <p class="lead">Specialized agents, not one agent building the entire platform. Prompts live in <code>.cursor/agents/</code> for use after approval.</p>
+
+    <h2>1. Agent roster and first phase</h2>
+    <table>
+      <tr><th>Agent</th><th>Role</th><th>First phase</th><th>Depends on</th></tr>
+      <tr><td>01 System Architect</td><td>Layering, reuse, gates</td><td>2 (this package)</td><td>—</td></tr>
+      <tr><td>02 Automotive Architect</td><td>CAN DB, ECU jobs</td><td>2 (doc 11)</td><td>01</td></tr>
+      <tr><td>16 HAL Engineer</td><td>HAL + BSP + Virtual stubs</td><td>3</td><td>01, 02</td></tr>
+      <tr><td>03 C/C++ Firmware</td><td>Framework, coding standard</td><td>4</td><td>16</td></tr>
+      <tr><td>04 FreeRTOS</td><td>Tasks, IPC, WDT/health</td><td>5</td><td>03</td></tr>
+      <tr><td>08 Concurrency</td><td>ISR contracts, lock review</td><td>5–7</td><td>04</td></tr>
+      <tr><td>05 CAN/TWAI</td><td>can_driver + can_service</td><td>6</td><td>16, 04</td></tr>
+      <tr><td>07 Peripheral drivers</td><td>UART/GPIO/I2C/SPI/ADC</td><td>7</td><td>16, 04</td></tr>
+      <tr><td>06 BLE</td><td>GATT automotive transport</td><td>8</td><td>04</td></tr>
+      <tr><td>09 UDS/ISO-TP</td><td>Protocol SMs</td><td>10–11</td><td>05</td></tr>
+      <tr><td>10 Diagnostics</td><td>DTC, ident, sessions</td><td>11–12</td><td>09</td></tr>
+      <tr><td>11 ECU Communication</td><td>BCM/VCU/BMS/IC/tester</td><td>12–13</td><td>02, 09</td></tr>
+      <tr><td>12 Cybersecurity</td><td>Prototype controls + limits</td><td>17</td><td>06, 09</td></tr>
+      <tr><td>13 Bootloader/OTA</td><td>Slots, CRC, rollback</td><td>18</td><td>03, 16</td></tr>
+      <tr><td>14 HIL/RCP</td><td>Stimulus/measure + PC</td><td>16</td><td>05, 07</td></tr>
+      <tr><td>15 Test Automation</td><td>Unit/integration/regression</td><td>every phase</td><td>module owner</td></tr>
+      <tr><td>17 Performance</td><td>Stacks, latency, CPU</td><td>after 9, again 19</td><td>04, 05, 06</td></tr>
+      <tr><td>18 Safety/Robustness</td><td>Fault SM, safe state</td><td>15</td><td>04, 10</td></tr>
+      <tr><td>19 Documentation</td><td>Keep HTML portal current</td><td>continuous</td><td>all</td></tr>
+      <tr><td>20 Code Review</td><td>CRITICAL→LOW then fixes</td><td>end of each phase</td><td>implementer</td></tr>
+    </table>
+
+    <h2>2. Recommended first implementation slice (after approval)</h2>
+    <ol>
+      <li>Agent 16 — HAL headers + ESP32-C3 + Virtual ECU stubs</li>
+      <li>Agent 03 — framework + error codes + comments standard</li>
+      <li>Agent 04 + 08 — logger, WDT, health, one demo task set</li>
+      <li>Agent 05 — CAN driver/service with test hooks</li>
+      <li>Agent 20 — review that slice only</li>
+    </ol>
+
+    <h2>3. What each agent must produce</h2>
+    <ul>
+      <li>Code with function banners and line comments on non-obvious lines</li>
+      <li>State machine tables where the module has modes</li>
+      <li>Tests with Setup / Stimulus / Expected / Timeout / Pass-fail / Cleanup</li>
+      <li>No product logic inside drivers</li>
+    </ul>
+
+    <h2>4. Review agent protocol</h2>
+    <p>Agent 20 does not edit first. It files CRITICAL / HIGH / MEDIUM / LOW. Fixes are a second pass, module-local.</p>
+
+    <footer class="note">Document 10 of 10 · Architecture package</footer>
+  </main>
+</div>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

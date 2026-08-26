@@ -1,0 +1,112 @@
+:root {
+  --bg: #0e1116;
+  --bg-2: #161b22;
+  --bg-3: #1c2330;
+  --ink: #e6edf3;
+  --muted: #8b9bb4;
+  --line: #2b3544;
+  --accent: #c9a227;
+  --accent-2: #3d9a8a;
+  --danger: #c45c4a;
+  --ok: #3d8b5a;
+  --warn: #c48a2a;
+  --mono: "IBM Plex Mono", "Consolas", "Cascadia Mono", monospace;
+  --sans: "IBM Plex Sans", "Segoe UI", "Helvetica Neue", sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.55; }
+a { color: var(--accent-2); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code, pre { font-family: var(--mono); font-size: 0.86em; }
+pre { background: var(--bg-3); border: 1px solid var(--line); padding: 14px 16px; overflow-x: auto; }
+
+.shell { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+#nav {
+  background: var(--bg-2);
+  border-right: 1px solid var(--line);
+  padding: 22px 16px 40px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: auto;
+}
+#nav .brand { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin: 0 0 6px; }
+#nav h1 { font-size: 15px; margin: 0 0 18px; font-weight: 600; line-height: 1.3; }
+#nav a { display: block; color: var(--ink); padding: 6px 8px; border-left: 2px solid transparent; font-size: 13px; }
+#nav a:hover { background: var(--bg-3); text-decoration: none; }
+#nav a.active { border-left-color: var(--accent); color: var(--accent); }
+#nav .sec { margin: 16px 8px 6px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+main { padding: 36px 48px 80px; max-width: 1080px; }
+h1.page { font-size: 28px; margin: 0 0 8px; font-weight: 600; }
+.lead { color: var(--muted); font-size: 16px; margin: 0 0 28px; }
+h2 { margin: 36px 0 12px; font-size: 20px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+h3 { margin: 24px 0 8px; font-size: 16px; color: var(--accent); }
+p { margin: 0 0 12px; }
+ul, ol { margin: 0 0 16px; padding-left: 22px; }
+li { margin-bottom: 4px; }
+
+.banner {
+  border: 1px solid var(--line);
+  background: var(--bg-2);
+  padding: 12px 16px;
+  margin: 0 0 24px;
+  font-size: 13px;
+}
+.banner.warn { border-left: 3px solid var(--warn); }
+.banner.ok { border-left: 3px solid var(--ok); }
+.banner.danger { border-left: 3px solid var(--danger); }
+
+table { width: 100%; border-collapse: collapse; margin: 0 0 20px; font-size: 13px; }
+th, td { border: 1px solid var(--line); padding: 7px 9px; text-align: left; vertical-align: top; }
+th { background: var(--bg-3); color: var(--muted); font-weight: 600; }
+tr:nth-child(even) td { background: #141924; }
+.tag { display: inline-block; font-size: 11px; padding: 1px 7px; border: 1px solid var(--line); color: var(--muted); }
+.tag.proto { color: var(--warn); border-color: var(--warn); }
+.tag.reuse { color: var(--accent-2); border-color: var(--accent-2); }
+.tag.prod { color: var(--accent); border-color: var(--accent); }
+
+.layers { display: grid; gap: 6px; margin: 16px 0 24px; }
+.layer {
+  border: 1px solid var(--line);
+  background: var(--bg-2);
+  padding: 10px 14px;
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+.layer b { color: var(--accent); font-size: 13px; }
+.layer span { color: var(--muted); font-size: 13px; }
+
+.flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 20px;
+}
+.flow .box {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  padding: 8px 12px;
+  font-size: 13px;
+}
+.flow .arrow { color: var(--accent); font-family: var(--mono); }
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.card { background: var(--bg-2); border: 1px solid var(--line); padding: 14px 16px; }
+.card h3 { margin-top: 0; }
+
+.sm { font-family: var(--mono); font-size: 12px; line-height: 1.45; white-space: pre; background: var(--bg-3); border: 1px solid var(--line); padding: 14px 16px; overflow-x: auto; }
+
+footer.note { margin-top: 48px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); padding-top: 12px; }
+
+@media (max-width: 900px) {
+  .shell { grid-template-columns: 1fr; }
+  #nav { position: relative; height: auto; }
+  main { padding: 24px 18px 60px; }
+  .grid2 { grid-template-columns: 1fr; }
+  .layer { grid-template-columns: 1fr; }
+}

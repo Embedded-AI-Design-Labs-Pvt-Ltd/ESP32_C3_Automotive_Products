@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>02 Requirements — AEGW-C3</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div class="shell">
+  <aside id="nav"></aside>
+  <main>
+    <h1 class="page">02 Requirements</h1>
+    <p class="lead">Shall / should / later. Prototype scope is explicit so implementation does not silently become a vehicle program.</p>
+
+    <div class="banner warn">IDs prefixed REQ-P are prototype. They are not OEM production requirements and are not ISO 26262 ASIL allocated.</div>
+
+    <h2>1. Platform requirements</h2>
+    <table>
+      <tr><th>ID</th><th>Statement</th><th>Priority</th></tr>
+      <tr><td>REQ-P-001</td><td>The repository shall be one core platform plus thin product applications.</td><td>Shall</td></tr>
+      <tr><td>REQ-P-002</td><td>Firmware modules shall compile as ESP-IDF components with no circular includes across layers.</td><td>Shall</td></tr>
+      <tr><td>REQ-P-003</td><td>Protocols and services shall not include ESP-IDF headers.</td><td>Shall</td></tr>
+      <tr><td>REQ-P-004</td><td>A product shall be selected at compile time; unused tasks shall not be created.</td><td>Shall</td></tr>
+      <tr><td>REQ-P-005</td><td>Public APIs shall return <code>ae_status_t</code> and shall be thread-safe as documented.</td><td>Shall</td></tr>
+      <tr><td>REQ-P-006</td><td>No heap allocation on CAN RX, ISO-TP, or UDS data paths.</td><td>Shall</td></tr>
+      <tr><td>REQ-P-007</td><td>Virtual ECU shall exercise the same services without ESP32 hardware.</td><td>Shall</td></tr>
+      <tr><td>REQ-P-008</td><td>Arduino and Raspberry Pi 5 ports shall reuse protocols/services via HAL.</td><td>Later</td></tr>
+    </table>
+
+    <h2>2. Hardware / target requirements</h2>
+    <table>
+      <tr><th>ID</th><th>Statement</th></tr>
+      <tr><td>REQ-H-001</td><td>Primary MCU: ESP32-C3, ESP-IDF 5.x, FreeRTOS.</td></tr>
+      <tr><td>REQ-H-002</td><td>CAN 2.0 via TWAI + external transceiver. Standard and extended IDs.</td></tr>
+      <tr><td>REQ-H-003</td><td>BLE 5 GATT server (NimBLE). Pairing/bonding prototype with documented limits.</td></tr>
+      <tr><td>REQ-H-004</td><td>UART, GPIO, I2C, SPI, ADC, GPTimer, WDT, NVS shall have HAL + driver.</td></tr>
+      <tr><td>REQ-H-005</td><td>Default CAN bitrate 500 kbit/s, configurable 125/250/500/1000.</td></tr>
+    </table>
+
+    <h2>3. Protocol requirements</h2>
+    <table>
+      <tr><th>ID</th><th>Statement</th></tr>
+      <tr><td>REQ-D-001</td><td>ISO-TP: SF, FF, CF, FC, N_As/N_Ar/N_Bs/N_Cr timeouts, 4095-byte cap for prototype.</td></tr>
+      <tr><td>REQ-D-002</td><td>UDS services 0x10, 0x11, 0x14, 0x19, 0x22, 0x27 (prototype seed/key), 0x2E, 0x31, 0x3E.</td></tr>
+      <tr><td>REQ-D-003</td><td>OBD-II modes 01, 03, 04, 09 over functional 0x7DF and physical 0x7E0/0x7E8 (SIM).</td></tr>
+      <tr><td>REQ-D-004</td><td>XCP/CCP: document mapping only in early phases; optional lite CTO later.</td></tr>
+      <tr><td>REQ-D-005</td><td>DTC detect / confirm / clear with simulated events (timeout, sensor, voltage, comms).</td></tr>
+    </table>
+
+    <h2>4. Product functional requirements (summary)</h2>
+    <table>
+      <tr><th>Product</th><th>Must demonstrate</th></tr>
+      <tr><td>BLE-CAN gateway</td><td>Bidirectional frame bridge, filter, stats, reconnect</td></tr>
+      <tr><td>BLE OBD adapter</td><td>Mode 01 PIDs, DTCs, VIN via BLE</td></tr>
+      <tr><td>UDS tester</td><td>Client session, DID read/write, tester present</td></tr>
+      <tr><td>CAN logger</td><td>Timestamped frames, UART/BLE dump, overflow count</td></tr>
+      <tr><td>ECU analyzer</td><td>Missing / unexpected / cycle-time violation</td></tr>
+      <tr><td>ECU test box</td><td>Scripted TX + GPIO expect</td></tr>
+      <tr><td>ECU simulator</td><td>UDS server + BCM/VCU/BMS models</td></tr>
+      <tr><td>Fault injection</td><td>Drop, delay, corrupt, hold GPIO, sensor stuck</td></tr>
+      <tr><td>EOL tester</td><td>Sequence, pass/fail, report</td></tr>
+      <tr><td>Config / calibration</td><td>DID write + NVS persist</td></tr>
+      <tr><td>Sensor gateway</td><td>I2C/SPI/ADC → CAN/BLE</td></tr>
+      <tr><td>TPMS gateway</td><td>BLE advert parse → CAN 0x5A0 SIM</td></tr>
+      <tr><td>EV battery GW</td><td>BMS status + over-temp DTC</td></tr>
+      <tr><td>CAN IDS</td><td>Rate, ID allow-list, payload check</td></tr>
+      <tr><td>HIL/RCP</td><td>PC stimulus/measure, timestamp</td></tr>
+      <tr><td>Training kit</td><td>Virtual ECU + documented labs</td></tr>
+      <tr><td>Bootloader/OTA</td><td>CRC, two-slot conceptual, rollback on fail</td></tr>
+    </table>
+
+    <h2>5. Non-functional</h2>
+    <ul>
+      <li><strong>Latency (target):</strong> CAN RX ISR to queue &lt; 50 µs typical; gateway CAN→BLE not real-time hard.</li>
+      <li><strong>Reliability:</strong> bus-off recovery policy; WDT reset with reason in NVS.</li>
+      <li><strong>Safety:</strong> fault state machine; safe state = TX silent + outputs default. Not ASIL rated.</li>
+      <li><strong>Security:</strong> prototype auth, session lock, rate limit. Not UNECE R155 certified.</li>
+      <li><strong>Test:</strong> each module ships unit tests with Setup/Stimulus/Expect/Timeout/Pass-fail/Cleanup.</li>
+    </ul>
+
+    <h2>6. Tooling and infrastructure (later phases)</h2>
+    <table>
+      <tr><th>Item</th><th>Requirement</th><th>Phase</th></tr>
+      <tr><td>GUI with hardware</td><td>TCP/UART/BLE to live node</td><td>16+</td></tr>
+      <tr><td>GUI without hardware</td><td>Same UI to Virtual ECU</td><td>3+ (hooks), 16</td></tr>
+      <tr><td>Docker</td><td>IDF build + host unit tests + compose Virtual ECU</td><td>19</td></tr>
+      <tr><td>Jenkins</td><td>lint, unit, product build matrix, artifacts</td><td>19</td></tr>
+      <tr><td>Terraform AWS/GCP/Azure</td><td>Firmware bucket only; no vehicle cloud</td><td>20</td></tr>
+    </table>
+
+    <h2>7. Out of scope for the prototype</h2>
+    <ul>
+      <li>CAN FD, LIN, FlexRay, Automotive Ethernet</li>
+      <li>Production HSM, secure boot fuse programming as a certified flow</li>
+      <li>OEM-secret CAN databases</li>
+      <li>Legal OBD tool certification, emissions, or workshop tool homologation</li>
+    </ul>
+
+    <footer class="note">Document 02 of 10 · Architecture package</footer>
+  </main>
+</div>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

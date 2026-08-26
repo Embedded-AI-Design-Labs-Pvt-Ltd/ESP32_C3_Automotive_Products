@@ -1,0 +1,45 @@
+# ESP-IDF / build
+build/
+sdkconfig
+sdkconfig.old
+managed_components/
+dependencies.lock
+*.elf
+*.bin
+*.map
+*.hex
+
+# IDE
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Python / host tools
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# Host / GUI
+node_modules/
+dist/
+*.log
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+crash.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets — never commit
+*.pem
+*.key
+secrets.json
+credentials.json

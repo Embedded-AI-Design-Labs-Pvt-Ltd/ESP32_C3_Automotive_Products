@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>01 System architecture — AEGW-C3</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div class="shell">
+  <aside id="nav"></aside>
+  <main>
+    <h1 class="page">01 System architecture</h1>
+    <p class="lead">System Architect view. One hardware/software base. Many automotive products. No implementation in this phase.</p>
+
+    <div class="banner warn">ESP32-C3 is a prototype edge node: one TWAI (CAN 2.0) controller, BLE 5 (NimBLE), no native dual-CAN. A second bus, if required later, is an SPI CAN controller (for example MCP2515) behind the same <code>hal_can</code> contract.</div>
+
+    <h2>1. System context</h2>
+    <div class="flow">
+      <div class="box">Phone / PC GUI</div><div class="arrow">BLE / UART / TCP</div>
+      <div class="box">ESP32-C3 node</div><div class="arrow">CAN / GPIO / I2C / SPI</div>
+      <div class="box">Vehicle bus or Virtual ECU</div>
+    </div>
+    <p>The same node can act as gateway, tester, simulator, logger, HIL interface, or training kit by compile-time product selection. A PC GUI talks to real hardware or to Virtual ECU with no silicon attached.</p>
+
+    <h2>2. Layered software architecture</h2>
+    <div class="layers">
+      <div class="layer"><b>Application</b><span>Product composition only: select services, bind routes, own product state machine. No driver calls.</span></div>
+      <div class="layer"><b>Automotive services</b><span>DTC, session, gateway router, ECU ident, security proto, OTA agent, fault manager, HIL sequencer.</span></div>
+      <div class="layer"><b>Protocols</b><span>CAN service, ISO-TP, UDS client/server, OBD-II, XCP/CCP concepts. Byte-oriented, transport-agnostic above CAN.</span></div>
+      <div class="layer"><b>Middleware</b><span>Typed IPC, queues/mutexes/events, logger, config store, health, timebase.</span></div>
+      <div class="layer"><b>HAL</b><span>Stable C contracts. Ports implement these. Protocols never include ESP-IDF headers.</span></div>
+      <div class="layer"><b>Drivers</b><span>ESP32-C3 TWAI, NimBLE, UART, GPIO, I2C, SPI, ADC, timer, NVS, WDT. ISR-short.</span></div>
+      <div class="layer"><b>Hardware</b><span>ESP32-C3, CAN transceiver, optional sensors, status I/O. Virtual ECU replaces this layer on PC.</span></div>
+    </div>
+
+    <h2>3. Hardware abstraction architecture</h2>
+    <p>HAL is the portability boundary. Arduino and Raspberry Pi 5 later replace drivers + BSP only.</p>
+    <table>
+      <tr><th>HAL module</th><th>ESP32-C3 mapping</th><th>Virtual ECU mapping</th></tr>
+      <tr><td>hal_can</td><td>TWAI + transceiver GPIO</td><td>TCP or Unix socket frames</td></tr>
+      <tr><td>hal_ble</td><td>NimBLE GATT</td><td>WebSocket GATT shim</td></tr>
+      <tr><td>hal_uart</td><td>UART ISR + ring</td><td>stdio / named pipe</td></tr>
+      <tr><td>hal_gpio</td><td>GPIO ISR</td><td>GUI buttons / virtual pins</td></tr>
+      <tr><td>hal_i2c / hal_spi / hal_adc</td><td>IDF drivers</td><td>scripted sensor files</td></tr>
+      <tr><td>hal_nvs</td><td>NVS flash</td><td>JSON file</td></tr>
+      <tr><td>hal_wdg</td><td>TWDT / RWDT</td><td>host watchdog thread</td></tr>
+    </table>
+
+    <h2>4. Application architecture</h2>
+    <p>Each product is a single <code>app_main</code> that:</p>
+    <ol>
+      <li>Initializes BSP and selected HAL instances</li>
+      <li>Creates the FreeRTOS task set required by that product (subset of the platform task catalog)</li>
+      <li>Registers protocol and service callbacks</li>
+      <li>Enters the product state machine</li>
+    </ol>
+    <p>Feature flags such as <code>CONFIG_PRODUCT_BLE_CAN_GATEWAY</code> exclude unused tasks and stacks at compile time. ESP32-C3 SRAM does not allow every task in every product.</p>
+
+    <h2>5. Middleware architecture</h2>
+    <p>Middleware owns <em>how</em> tasks talk, not <em>what</em> a CAN signal means.</p>
+    <ul>
+      <li>Typed message envelope: source, dest, type, timestamp, payload pointer + length</li>
+      <li>Static pools — no malloc on the data path</li>
+      <li>Logger is a sink, never a control path</li>
+      <li>Config is schema-versioned; invalid schema falls back to factory defaults</li>
+    </ul>
+
+    <h2>6. Driver architecture</h2>
+    <p>Drivers implement HAL. They may use IDF. They expose:</p>
+    <ul>
+      <li>Init / deinit with explicit error codes</li>
+      <li>ISR → queue or task notification only</li>
+      <li>Thread-safe TX from tasks; RX from one owner task</li>
+      <li>Test hooks: inject frame, force bus-off, force timeout (compile-time <code>CONFIG_AE_TEST_HOOKS</code>)</li>
+    </ul>
+
+    <h2>7. FreeRTOS and inter-task communication</h2>
+    <p>See <a href="04-task-architecture.html">04 Task architecture</a> for the full catalog. Rule: ISR never parses UDS or BLE ATT. ISR never logs strings.</p>
+
+    <h2>8. Error, logging, configuration, diagnostics</h2>
+    <div class="grid2">
+      <div class="card">
+        <h3>Error handling</h3>
+        <p>Every public function returns <code>ae_status_t</code> (0 = OK). Codes are <code>(module &lt;&lt; 8) | reason</code>. Callers do not ignore returns. Fault manager consumes repeated errors.</p>
+      </div>
+      <div class="card">
+        <h3>Logging</h3>
+        <p>Compile-time levels. ISR uses a lock-free drop-counter, not printf. Task logger drains a ring to UART. Tags: CAN, BLE, UDS, OS, HAL, APP.</p>
+      </div>
+      <div class="card">
+        <h3>Configuration</h3>
+        <p>Static Kconfig + a small NVS blob (bitrate, BLE name, route table version). Dynamic writes require diagnostic session + security access prototype.</p>
+      </div>
+      <div class="card">
+        <h3>Diagnostics</h3>
+        <p>DTC manager is a service. UDS, OBD, BLE, and UART are transports that publish the same DTC table.</p>
+      </div>
+    </div>
+
+    <h2>9. Reusable vs product-specific</h2>
+    <table>
+      <tr><th>Reusable (platform)</th><th>Product-specific</th></tr>
+      <tr><td>HAL, BSP, all drivers</td><td>Which HAL instances are created</td></tr>
+      <tr><td>ISO-TP, UDS, OBD, CAN service</td><td>Which UDS DIDs and routines exist</td></tr>
+      <tr><td>DTC manager, fault manager, logger</td><td>Which faults are armed</td></tr>
+      <tr><td>BLE GATT automotive service</td><td>Which characteristics are advertised</td></tr>
+      <tr><td>OTA state machine</td><td>Whether OTA is compiled in</td></tr>
+      <tr><td>CAN database tables (SIM IDs)</td><td>Route map and cycle monitors</td></tr>
+    </table>
+
+    <h2>10. Constraints that shape the design</h2>
+    <ul>
+      <li>ESP32-C3 SRAM is limited — subset tasks per product</li>
+      <li>One native CAN controller — dual-bus is a later HAL instance, not a second stack</li>
+      <li>BLE and TWAI together must be measured (Phase 17 performance)</li>
+      <li>This is a production-<em>quality prototype</em>, not a certified ECU</li>
+    </ul>
+
+    <footer class="note">Document 01 of 10 · Architecture package · No firmware in this phase</footer>
+  </main>
+</div>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

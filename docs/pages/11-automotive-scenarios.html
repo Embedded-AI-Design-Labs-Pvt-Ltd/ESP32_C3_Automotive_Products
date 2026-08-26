@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>11 Automotive CAN scenarios — AEGW-C3</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div class="shell">
+  <aside id="nav"></aside>
+  <main>
+    <h1 class="page">11 Automotive CAN scenarios</h1>
+    <p class="lead">Automotive Architect view. Realistic jobs, <span class="tag proto">SIM / PROTO IDs</span> — not OEM production databases.</p>
+
+    <div class="banner warn">All CAN IDs below are simulated for this prototype. Do not use them on a public road vehicle. Payload layouts are teaching models.</div>
+
+    <h2>Reusable CAN database structure</h2>
+    <pre>typedef struct {
+  uint32_t id;
+  uint8_t  ide;
+  uint8_t  dlc;
+  uint16_t cycle_ms;     /* 0 = event */
+  uint16_t timeout_ms;
+  uint8_t  dir;          /* TX / RX from this node's view */
+  const char *name;
+  const ae_signal_t *signals;
+  uint8_t signal_count;
+} ae_can_msg_def_t;</pre>
+
+    <h2>1. BCM — body control</h2>
+    <table>
+      <tr><th>ECU</th><th>ID</th><th>Dir</th><th>Cycle</th><th>Payload / signals</th><th>Timeout</th><th>Fault</th><th>Expected</th></tr>
+      <tr><td>BCM</td><td>0x1A0 SIM</td><td>BCM→</td><td>100 ms</td><td>B0 ign 2b, B0 doors 4b, B1 lights, B2 km/h 8b, B3–4 counter, B5 checksum</td><td>300 ms</td><td>Missing 3 cycles</td><td>GW/IC keep last; DTC U1A00 SIM</td></tr>
+      <tr><td>BCM</td><td>0x1A1 SIM</td><td>BCM→</td><td>200 ms</td><td>Door FL/FR/RL/RR, lock, hood, trunk</td><td>600 ms</td><td>Stuck open vs GPIO</td><td>IC telltale</td></tr>
+      <tr><td>Tester/HIL</td><td>0x1A2 SIM</td><td>→BCM</td><td>event</td><td>Light cmd: pos/low/high/ind</td><td>50 ms resp</td><td>No 0x1A3</td><td>0x1A3 echo</td></tr>
+      <tr><td>BCM</td><td>0x1A3 SIM</td><td>BCM→</td><td>100 ms</td><td>Light status + error bits</td><td>300 ms</td><td>Cmd/status mismatch</td><td>DTC B1A03 SIM</td></tr>
+    </table>
+
+    <h2>2. VCU — vehicle control</h2>
+    <table>
+      <tr><th>ID</th><th>Dir</th><th>Cycle</th><th>Signals</th><th>Timeout</th><th>Fault / expected</th></tr>
+      <tr><td>0x200 SIM</td><td>VCU→</td><td>100 ms</td><td>Alive, mode (park/drive), ready</td><td>300 ms</td><td>BMS/IC enter safe torque 0</td></tr>
+      <tr><td>0x201 SIM</td><td>VCU→</td><td>10 ms</td><td>Torque req 16b, brake 8b, counter, checksum</td><td>30 ms</td><td>Inverter (sim) zeros torque</td></tr>
+      <tr><td>0x202 SIM</td><td>VCU→</td><td>50 ms</td><td>Vehicle state, gear, limits</td><td>150 ms</td><td>IC limp telltale</td></tr>
+    </table>
+
+    <h2>3. BMS — battery</h2>
+    <table>
+      <tr><th>ID</th><th>Dir</th><th>Cycle</th><th>Signals</th><th>Timeout</th><th>Fault / expected</th></tr>
+      <tr><td>0x300 SIM</td><td>BMS→</td><td>100 ms</td><td>Pack V, I, SOC, soh, flags</td><td>300 ms</td><td>VCU torque 0; DTC P1A00 SIM</td></tr>
+      <tr><td>0x301 SIM</td><td>BMS→</td><td>100 ms</td><td>Min/max cell mV</td><td>300 ms</td><td>Balance / isolate sim</td></tr>
+      <tr><td>0x302 SIM</td><td>BMS→</td><td>200 ms</td><td>Min/max temp °C</td><td>600 ms</td><td>Over-temp DTC P1A02 SIM</td></tr>
+      <tr><td>0x303 SIM</td><td>BMS→</td><td>100 ms</td><td>Charge/discharge current limits</td><td>300 ms</td><td>VCU clamps 0x201</td></tr>
+    </table>
+
+    <h2>4. Instrument cluster</h2>
+    <table>
+      <tr><th>ID</th><th>Dir</th><th>Cycle</th><th>Role</th></tr>
+      <tr><td>0x400 SIM</td><td>IC→</td><td>100 ms</td><td>Display ack / brightness</td></tr>
+      <tr><td>0x401 SIM</td><td>IC→</td><td>50 ms</td><td>Telltales consumed (heartbeat)</td></tr>
+    </table>
+    <p>IC is mostly a consumer of 0x1A0, 0x200, 0x300. Missing any of those lights the corresponding telltale in the simulator.</p>
+
+    <h2>5. Gateway</h2>
+    <table>
+      <tr><th>ID</th><th>Cycle</th><th>Payload</th></tr>
+      <tr><td>0x500 SIM</td><td>500 ms</td><td>Health, routed fps, drop count</td></tr>
+      <tr><td>0x501 SIM</td><td>1000 ms</td><td>Route table version, BLE link state</td></tr>
+    </table>
+
+    <h2>6. Diagnostic tester</h2>
+    <table>
+      <tr><th>ID</th><th>Dir</th><th>Cycle</th><th>Use</th></tr>
+      <tr><td>0x7DF</td><td>Tester→</td><td>event</td><td>OBD functional request (ISO 15765)</td></tr>
+      <tr><td>0x7E0</td><td>Tester→ECU</td><td>event</td><td>UDS/OBD physical request</td></tr>
+      <tr><td>0x7E8</td><td>ECU→Tester</td><td>event</td><td>Response (ISO-TP)</td></tr>
+    </table>
+    <p>Timeout: P2 50 ms (proto), P2* 2000 ms after NRC 0x78. Expected: positive response or NRC. No response → comms DTC.</p>
+
+    <h2>7. Sensor gateway / TPMS</h2>
+    <table>
+      <tr><th>ID</th><th>Cycle</th><th>Signals</th><th>Fault</th></tr>
+      <tr><td>0x5A0 SIM</td><td>1000 ms</td><td>FL/FR/RL/RR kPa, temp, battery, lost sensor</td><td>BLE miss 5 s → DTC C1A00 SIM</td></tr>
+      <tr><td>0x5B0 SIM</td><td>100 ms</td><td>Packed I2C/ADC channels</td><td>I2C NACK → last-good + DTC</td></tr>
+    </table>
+
+    <h2>8. HIL / EOL</h2>
+    <p>HIL uses the same IDs as stimulus. EOL sequence example: power sim → 0x200 ready → 0x10 extended → 0x22 F190 VIN → 0x31 routine self-test → pass/fail.</p>
+
+    <h2>9. Example scenario: tester reads VIN</h2>
+    <ol>
+      <li>Tester sends ISO-TP SF: 0x7E0 <code>03 22 F1 90</code></li>
+      <li>ECU replies 0x7E8 first frame if VIN &gt; 5 data bytes</li>
+      <li>Tester FC CTS; ECU CF completes</li>
+      <li>Timeout any step → fail; unexpected SID → NRC 0x11</li>
+    </ol>
+
+    <h2>10. Example scenario: BMS over-temp</h2>
+    <ol>
+      <li>0x302 max temp &gt; 55 °C (SIM threshold)</li>
+      <li>DTC P1A02 confirm after 3 samples</li>
+      <li>0x303 discharge limit → 0</li>
+      <li>VCU 0x201 torque req ignored / forced 0 in simulator</li>
+      <li>BLE battery characteristic notifies over-temp flag</li>
+    </ol>
+
+    <footer class="note">Automotive Architect · Simulated IDs only</footer>
+  </main>
+</div>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

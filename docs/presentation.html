@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AEGW-C3 Architecture Presentation</title>
+  <style>
+    :root { --bg:#0e1116; --ink:#e6edf3; --muted:#8b9bb4; --accent:#c9a227; --line:#2b3544; --teal:#3d9a8a; }
+    * { box-sizing: border-box; }
+    html, body { margin:0; height:100%; background:var(--bg); color:var(--ink); font-family:"Segoe UI","IBM Plex Sans",sans-serif; }
+    .deck { height:100%; display:flex; flex-direction:column; }
+    .slide { display:none; flex:1; padding:56px 72px; }
+    .slide.on { display:block; }
+    h1 { font-size:36px; margin:0 0 12px; font-weight:600; }
+    h2 { font-size:28px; margin:0 0 20px; color:var(--accent); font-weight:600; }
+    p, li { font-size:18px; line-height:1.5; color:var(--ink); }
+    .muted { color:var(--muted); }
+    .kicker { letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); font-size:13px; margin-bottom:10px; }
+    ul { margin:0; padding-left:22px; }
+    li { margin-bottom:8px; }
+    .bar { border-top:1px solid var(--line); padding:10px 72px; display:flex; justify-content:space-between; color:var(--muted); font-size:13px; }
+    .layers div { border:1px solid var(--line); padding:8px 12px; margin:6px 0; }
+    .layers b { color:var(--teal); }
+    code { color:var(--accent); }
+  </style>
+</head>
+<body>
+<div class="deck">
+  <section class="slide on">
+    <div class="kicker">AEGW-C3 · Phase 2</div>
+    <h1>Automotive ESP32-C3<br>Edge Gateway &amp; ECU Platform</h1>
+    <p class="muted">One reusable platform. Many products. Architecture first — implementation after approval.</p>
+  </section>
+  <section class="slide">
+    <h2>What we found</h2>
+    <ul>
+      <li>Repository was empty — greenfield.</li>
+      <li>No ESP-IDF project, no firmware, no prior docs.</li>
+      <li>This package is the first baseline.</li>
+    </ul>
+  </section>
+  <section class="slide">
+    <h2>The rule that matters</h2>
+    <p>Do not build 17 separate projects.</p>
+    <p>Build one core: HAL, drivers, CAN, BLE, ISO-TP, UDS, diagnostics, logging, security, OTA, tests.</p>
+    <p>Compose products on top.</p>
+  </section>
+  <section class="slide">
+    <h2>Layers</h2>
+    <div class="layers">
+      <div><b>Application</b> — product composition</div>
+      <div><b>Services</b> — DTC, gateway, fault, OTA</div>
+      <div><b>Protocols</b> — CAN, ISO-TP, UDS, OBD</div>
+      <div><b>Middleware</b> — IPC, log, config, health</div>
+      <div><b>HAL → Drivers → ESP32-C3</b></div>
+    </div>
+  </section>
+  <section class="slide">
+    <h2>Products (same base)</h2>
+    <p>Gateway · OBD · UDS tester · Logger · Analyzer · Test box · Simulator · Fault box · EOL · Calibration · Sensor / TPMS / EV GW · IDS · HIL · Training · OTA</p>
+  </section>
+  <section class="slide">
+    <h2>Real-time shape</h2>
+    <ul>
+      <li>ISR only queues or notifies.</li>
+      <li>CAN RX is the highest comms task.</li>
+      <li>No malloc on the frame path.</li>
+      <li>Watchdog never takes a mutex.</li>
+    </ul>
+  </section>
+  <section class="slide">
+    <h2>Ports and tools</h2>
+    <ul>
+      <li>Primary: ESP32-C3 + ESP-IDF.</li>
+      <li>Virtual ECU + GUI — with or without hardware.</li>
+      <li>Later: Arduino, Raspberry Pi 5.</li>
+      <li>Later: Docker, Jenkins, Terraform artifact stores.</li>
+    </ul>
+  </section>
+  <section class="slide">
+    <h2>CAN IDs</h2>
+    <p>Prototype / simulated only: BCM 0x1A0, VCU 0x200, BMS 0x300, IC 0x400, diag 0x7E0/0x7E8.</p>
+    <p class="muted">Not OEM production identifiers.</p>
+  </section>
+  <section class="slide">
+    <h2>Where we stop</h2>
+    <p>Phase 1–2 complete. No firmware until you approve the ten documents.</p>
+    <p>Next after approval: Phase 3 BSP/HAL, then framework, then tasks, then CAN.</p>
+    <p class="muted"><a href="index.html" style="color:#3d9a8a">Open the HTML portal</a></p>
+  </section>
+  <div class="bar">
+    <span>Arrow keys or click · Esc home</span>
+    <span id="n"></span>
+  </div>
+</div>
+<script>
+  var slides = [].slice.call(document.querySelectorAll(".slide"));
+  var i = 0;
+  function show(k) {
+    i = (k + slides.length) % slides.length;
+    slides.forEach(function (s, j) { s.classList.toggle("on", j === i); });
+    document.getElementById("n").textContent = (i + 1) + " / " + slides.length;
+  }
+  show(0);
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); show(i + 1); }
+    if (e.key === "ArrowLeft") { e.preventDefault(); show(i - 1); }
+    if (e.key === "Escape") location.href = "index.html";
+  });
+  document.addEventListener("click", function (e) {
+    if (e.target.closest("a")) return;
+    show(i + (e.clientX > innerWidth / 2 ? 1 : -1));
+  });
+</script>
+</body>
+</html>

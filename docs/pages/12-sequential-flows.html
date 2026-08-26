@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>12 Sequential flows — AEGW-C3</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div class="shell">
+  <aside id="nav"></aside>
+  <main>
+    <h1 class="page">12 Sequential flows</h1>
+    <p class="lead">Time-ordered interactions for the main real-time use cases. Vertical order is time.</p>
+
+    <h2>1. Power-on to RUN</h2>
+    <pre class="sm">MCU          HAL/BSP       OS/IPC        PRODUCT SM
+ | reset        |             |              |
+ |--init WDT--->|             |              |
+ |--pin map---->|             |              |
+ |--hal_can/ble>|             |              |
+ |              |--create q-->|              |
+ |              |--spawn tsk->|              |
+ |              |             |--INIT------->|
+ |              |             |--RUN---------|
+ |              |             |  kick WDT    |</pre>
+
+    <h2>2. Gateway: phone command to CAN</h2>
+    <pre class="sm">PHONE     NIMBLE CB    BLE TASK    ROUTER    CAN TX    BUS
+  | write     |            |           |         |        |
+  |---------->| copy+queue |           |         |        |
+  |           |----------->| validate  |         |        |
+  |           |            |---------->| filter  |        |
+  |           |            |           |-------->| send   |
+  |           |            |           |         |------->|
+  |           |            |           |  ack/stat        |</pre>
+
+    <h2>3. UDS ReadDataByIdentifier</h2>
+    <pre class="sm">TESTER     CAN RX    ISO-TP     UDS SERVER    DID MAP
+  | 7E0 22.. |          |           |             |
+  |--------->| frame    |           |             |
+  |          |--------->| reasm     |             |
+  |          |          |---------->| session OK? |
+  |          |          |           |------------>|
+  |          |          |  PDU&lt;-----| pos / NRC   |
+  |          | 7E8 &lt;----| segment   |             |
+  |&lt;---------|          |           |             |</pre>
+
+    <h2>4. Missing cyclic message</h2>
+    <pre class="sm">CAN SVC (tick)    DTC MGR     FAULT MGR     APP/IC
+  | timeout 0x1A0    |            |             |
+  |----------------->| pending    |             |
+  | 3rd miss-------->| confirm    |             |
+  |                  |----------->| DEGRADED    |
+  |                  |            |------------>| telltale</pre>
+
+    <h2>5. HIL fault injection</h2>
+    <pre class="sm">PC GUI     UART/TCP    HIL AGENT    CAN TX    ECU/SIM
+  | inject drop      |            |           |        |
+  |----------------->| parse      |           |        |
+  |                  |----------->| arm rule  |        |
+  |                  |            |  (drop 0x201)      |
+  |                  | measure    |&lt;--RX others        |
+  |&lt;--timestamped log|            |           |        |</pre>
+
+    <h2>6. OTA without bricking</h2>
+    <pre class="sm">HOST     OTA AGENT     INACTIVE SLOT     BOOT FLAG
+  | meta    |               |                 |
+  |-------->| DOWNLOAD      |                 |
+  | chunks  |-------------->| write           |
+  |         | VERIFY CRC    |                 |
+  | fail----| DISCARD       | erase partial   |
+  |         | (running OK)  |                 |
+  | ok------| COMMIT------------------------->|
+  |         | reset / select new              |</pre>
+
+    <h2>7. Virtual ECU lab (no hardware)</h2>
+    <pre class="sm">INSTRUCTOR GUI     VIRTUAL ECU      IN-MEMORY BUS     MODELS
+  | start scenario    |                |                 |
+  |------------------>| load BCM/VCU   |                 |
+  |                   |--------------->| 0x200/0x300     |
+  | inject over-temp  |                |                 |
+  |------------------>|                |---------------->| BMS
+  |                   | DTC + 0x303=0  |&lt;----------------|
+  | observe GUI       |&lt;---------------|                 |</pre>
+
+    <h2>8. ISR deferral (concurrency)</h2>
+    <pre class="sm">TWAI ISR --queueFromISR--> CAN RX TASK --publish--> ISO-TP / LOGGER / IDS
+UART ISR --ring+notify----> UART TASK  --lines-----> HIL / CLI
+GPIO ISR --notify---------> SENSOR/HIL --stamp-----> measure q</pre>
+
+    <footer class="note">Sequential flows · Architecture package</footer>
+  </main>
+</div>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>09 Development roadmap — AEGW-C3</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div class="shell">
+  <aside id="nav"></aside>
+  <main>
+    <h1 class="page">09 Development roadmap</h1>
+    <p class="lead">Twenty phases. This repository has completed Phase 1 and Phase 2. Implementation starts only after you approve this package.</p>
+
+    <div class="banner ok">Current position: end of Phase 2. Gate: architecture approval.</div>
+
+    <h2>Phase table</h2>
+    <table>
+      <tr><th>Phase</th><th>Name</th><th>Exit criteria</th><th>State</th></tr>
+      <tr><td>1</td><td>Repository analysis</td><td>Empty-repo finding recorded</td><td>Done</td></tr>
+      <tr><td>2</td><td>System architecture</td><td>10 docs + flows + presentation + folder tree</td><td>Done — approve</td></tr>
+      <tr><td>3</td><td>ESP32-C3 BSP/HAL</td><td>HAL headers + C3 stubs + Virtual ECU HAL stubs compile</td><td>Not started</td></tr>
+      <tr><td>4</td><td>C/C++ framework</td><td>Ring, SM, callbacks, error codes, unit tests</td><td>Not started</td></tr>
+      <tr><td>5</td><td>FreeRTOS task core</td><td>Health, WDT, logger, IPC running on C3 and host</td><td>Not started</td></tr>
+      <tr><td>6</td><td>CAN driver + service</td><td>TX/RX/filter/bus-off tests (hook + hardware)</td><td>Not started</td></tr>
+      <tr><td>7</td><td>UART/GPIO/I2C/SPI/ADC</td><td>Drivers + ISR demos + tests</td><td>Not started</td></tr>
+      <tr><td>8</td><td>BLE transport</td><td>GATT automotive service, reconnect SM</td><td>Not started</td></tr>
+      <tr><td>9</td><td>CAN ↔ BLE gateway</td><td>First product (P01) on the platform</td><td>Not started</td></tr>
+      <tr><td>10</td><td>ISO-TP</td><td>SF/FF/CF/FC + timeouts unit + bus</td><td>Not started</td></tr>
+      <tr><td>11</td><td>UDS</td><td>Listed SIDs, client + server</td><td>Not started</td></tr>
+      <tr><td>12</td><td>ECU simulator</td><td>BCM/VCU/BMS/IC models on SIM IDs</td><td>Not started</td></tr>
+      <tr><td>13</td><td>Diagnostic tester</td><td>P03 against simulator / Virtual ECU</td><td>Not started</td></tr>
+      <tr><td>14</td><td>CAN logger + analyzer</td><td>P04/P05 missing &amp; unexpected</td><td>Not started</td></tr>
+      <tr><td>15</td><td>Fault injection</td><td>P08 drop/delay/corrupt + fault SM</td><td>Not started</td></tr>
+      <tr><td>16</td><td>HIL + GUI</td><td>PC GUI with and without hardware</td><td>Not started</td></tr>
+      <tr><td>17</td><td>Security prototype</td><td>Authz, rate limit, IDS rules + limitations doc</td><td>Not started</td></tr>
+      <tr><td>18</td><td>Bootloader/OTA</td><td>Verify/rollback; running image safe</td><td>Not started</td></tr>
+      <tr><td>19</td><td>Automated testing + Docker/Jenkins</td><td>Regression gate green</td><td>Not started</td></tr>
+      <tr><td>20</td><td>Product packaging + cloud artifacts</td><td>Remaining products + Terraform buckets</td><td>Not started</td></tr>
+    </table>
+
+    <h2>Implementation rule after approval</h2>
+    <p>One phase at a time. Each phase: implement module → unit tests → review agent findings → next phase. Do not open all 17 products in one change set.</p>
+
+    <h2>Ports and cloud</h2>
+    <ul>
+      <li>Virtual ECU HAL stubs begin in Phase 3 so GUI/HIL can proceed without boards.</li>
+      <li>Arduino and Raspberry Pi 5 ports start after Phase 11 (UDS) unless you prioritize a port earlier.</li>
+      <li>Docker/Jenkins in Phase 19; Terraform artifact stores in Phase 20.</li>
+    </ul>
+
+    <footer class="note">Document 09 of 10 · Architecture package</footer>
+  </main>
+</div>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

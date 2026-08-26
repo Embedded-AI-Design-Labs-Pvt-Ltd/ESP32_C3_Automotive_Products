@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>03 Software architecture — AEGW-C3</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div class="shell">
+  <aside id="nav"></aside>
+  <main>
+    <h1 class="page">03 Software architecture</h1>
+    <p class="lead">Module map, language split, and how products are composed without forking the stack.</p>
+
+    <h2>1. Language policy</h2>
+    <table>
+      <tr><th>Layer</th><th>Language</th><th>Why</th></tr>
+      <tr><td>HAL, drivers, protocols, services, firmware app</td><td>C11</td><td>MISRA-inspired review, stable ABI, no hidden constructors, ISR-safe</td></tr>
+      <tr><td>Framework patterns</td><td>C11</td><td>Ring buffer, SM, callbacks as function pointers</td></tr>
+      <tr><td>PC GUI, Virtual ECU, test harness</td><td>C++17 (restricted)</td><td>Host OS, sockets, UI; no exceptions on shared protocol logic if later reused</td></tr>
+      <tr><td>CI / Terraform / Jenkins</td><td>Groovy, HCL, shell</td><td>Infrastructure, not firmware</td></tr>
+    </table>
+    <p>C++ features not used on the MCU: exceptions, RTTI, iostream, dynamic <code>new</code> on hot paths, STL containers in ISR context.</p>
+
+    <h2>2. Component map (ESP-IDF)</h2>
+    <pre>platform/common          → component ae_common
+platform/hal             → component ae_hal          (headers)
+platform/bsp             → component ae_bsp
+platform/drivers         → component ae_drivers
+platform/middleware      → component ae_os, ae_log, ae_cfg, ae_health
+platform/framework       → component ae_fw
+platform/protocols       → component ae_can, ae_isotp, ae_uds, ae_obd
+platform/services        → component ae_dtc, ae_gw, ae_sec, ae_ota, ae_fault
+products/&lt;name&gt;          → component ae_app (one of)</pre>
+
+    <h2>3. C framework demonstrations (planned in Phase 4)</h2>
+    <p>Phase 4 implements the patterns, not products. Each pattern gets a function banner, block comment, and line comments as requested.</p>
+    <ul>
+      <li>volatile variable and volatile pointer (hardware register views)</li>
+      <li>const pointer and pointer to const (TX tables vs RX buffers)</li>
+      <li>function pointer + callback registry</li>
+      <li>static ring buffer (ISR put / task get)</li>
+      <li>intrusive singly-linked list only for deferred work items in a static pool</li>
+      <li>explicit memory ownership in every header</li>
+    </ul>
+
+    <h2>4. Product composition</h2>
+    <pre>/* product compile-time selection — illustrative */
+#if CONFIG_PRODUCT_BLE_CAN_GATEWAY
+  ae_gw_init(&amp;gw_cfg);
+  ae_ble_svc_init(&amp;ble_gw_cbs);
+  ae_can_svc_init(&amp;can_gw_cbs);
+#elif CONFIG_PRODUCT_UDS_TESTER
+  ae_uds_client_init(&amp;uds_cfg);
+#endif</pre>
+    <p>No runtime “load all 17 products.” SRAM and flash cannot host that.</p>
+
+    <h2>5. State machines</h2>
+    <p>Every protocol and service uses the framework SM:</p>
+    <ul>
+      <li>Named states as enums</li>
+      <li>Entry / exit / tick / event handlers</li>
+      <li>Timeouts as SM events, not busy-waits</li>
+      <li>System-call style: tasks block on queues; SM runs in the owning task</li>
+    </ul>
+    <p>Control-flow diagrams: <a href="06-control-flow.html">document 06</a>.</p>
+
+    <h2>6. IPC model</h2>
+    <p>Tasks communicate with typed messages, not shared mutable structs without a mutex.</p>
+    <table>
+      <tr><th>Channel</th><th>Mechanism</th><th>Why</th></tr>
+      <tr><td>CAN ISR → CAN RX task</td><td>Queue (ISR send)</td><td>Frame copy is small; no lost wake if queue sized</td></tr>
+      <tr><td>UART ISR → UART task</td><td>Ring + task notify</td><td>Byte stream; notify is cheaper than per-byte queue</td></tr>
+      <tr><td>GPIO ISR → sensor/HIL task</td><td>Task notify or binary sem</td><td>Edge event, no payload</td></tr>
+      <tr><td>CAN RX → ISO-TP / logger / IDS</td><td>Queue or pub table</td><td>Multiple consumers; static subscriber list</td></tr>
+      <tr><td>BLE → gateway / UDS</td><td>Queue</td><td>ATT callbacks run in BLE stack context</td></tr>
+      <tr><td>Health bits</td><td>Event group</td><td>OR of independent faults</td></tr>
+      <tr><td>Driver handle</td><td>Mutex</td><td>Multi-task TX; priority inheritance on</td></tr>
+    </table>
+
+    <h2>7. Coding standard (firmware)</h2>
+    <ul>
+      <li>Function banner: name, purpose, thread context, ISR-safe?, ownership of buffers</li>
+      <li>No implicit bool for errors</li>
+      <li>Fixed-width types from <code>stdint.h</code></li>
+      <li>Public symbols prefixed <code>ae_</code></li>
+      <li>One compilation unit owns each static buffer</li>
+    </ul>
+
+    <footer class="note">Document 03 of 10 · Architecture package</footer>
+  </main>
+</div>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

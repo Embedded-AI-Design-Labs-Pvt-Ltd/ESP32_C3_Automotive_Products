@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>05 Data-flow architecture — AEGW-C3</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div class="shell">
+  <aside id="nav"></aside>
+  <main>
+    <h1 class="page">05 Data-flow architecture</h1>
+    <p class="lead">How bytes move. Ownership transfers at each queue. No shared frame buffers across tasks without a pool checkout.</p>
+
+    <h2>1. Canonical CAN frame object</h2>
+    <pre>ae_can_frame_t {
+  uint32_t id;          /* 11 or 29 bit */
+  uint8_t  ide;         /* 0 standard, 1 extended */
+  uint8_t  rtr;
+  uint8_t  dlc;
+  uint8_t  data[8];
+  uint32_t timestamp_us;
+  uint8_t  flags;       /* overflow, error, injected */
+}</pre>
+    <p>Allocated from a static pool. ISR copies into a pool slot or a queue item. Consumer returns the slot.</p>
+
+    <h2>2. BLE ↔ CAN gateway path</h2>
+    <div class="flow">
+      <div class="box">Phone write GATT</div><div class="arrow">→</div>
+      <div class="box">NimBLE callback</div><div class="arrow">queue</div>
+      <div class="box">BLE task</div><div class="arrow">ae_gw_cmd</div>
+      <div class="box">Router</div><div class="arrow">TX q</div>
+      <div class="box">CAN TX task</div><div class="arrow">TWAI</div>
+      <div class="box">Bus</div>
+    </div>
+    <div class="flow">
+      <div class="box">TWAI ISR</div><div class="arrow">q</div>
+      <div class="box">CAN RX task</div><div class="arrow">filter</div>
+      <div class="box">Router</div><div class="arrow">notify</div>
+      <div class="box">BLE task</div><div class="arrow">GATT notify</div>
+      <div class="box">Phone</div>
+    </div>
+
+    <h2>3. Diagnostic path (tester or ECU)</h2>
+    <div class="flow">
+      <div class="box">CAN 0x7E0</div><div class="arrow">→</div>
+      <div class="box">ISO-TP reassembly</div><div class="arrow">PDU</div>
+      <div class="box">UDS SM</div><div class="arrow">DID/DTC</div>
+      <div class="box">ISO-TP segment</div><div class="arrow">0x7E8</div>
+    </div>
+    <p>BLE diagnostic characteristic is another producer of the same UDS client/server API. Transport is selected by a small adapter; UDS does not know BLE.</p>
+
+    <h2>4. Logger path</h2>
+    <div class="flow">
+      <div class="box">CAN RX / UDS / APP</div><div class="arrow">ae_log_write</div>
+      <div class="box">ISR-safe ring</div><div class="arrow">notify</div>
+      <div class="box">Logger task</div><div class="arrow">UART or BLE</div>
+    </div>
+    <p>If the ring is full, increment drop counter. Never block CAN RX on UART.</p>
+
+    <h2>5. Sensor gateway path</h2>
+    <div class="flow">
+      <div class="box">I2C/SPI/ADC</div><div class="arrow">mutex</div>
+      <div class="box">Sensor task</div><div class="arrow">signals</div>
+      <div class="box">CAN DB pack</div><div class="arrow">TX q</div>
+      <div class="box">optional BLE notify</div>
+    </div>
+
+    <h2>6. HIL path</h2>
+    <div class="flow">
+      <div class="box">PC HIL GUI</div><div class="arrow">UART/TCP</div>
+      <div class="box">Command parser</div><div class="arrow">stimulus</div>
+      <div class="box">CAN / GPIO / ADC fake</div><div class="arrow">ECU or model</div>
+      <div class="box">measure + timestamp</div><div class="arrow">PC</div>
+    </div>
+
+    <h2>7. OTA path</h2>
+    <div class="flow">
+      <div class="box">BLE/UART/CAN transfer</div><div class="arrow">chunks</div>
+      <div class="box">OTA agent</div><div class="arrow">inactive slot</div>
+      <div class="box">CRC/hash</div><div class="arrow">commit or discard</div>
+      <div class="box">boot select</div>
+    </div>
+    <p>Failed verify never marks the running slot invalid.</p>
+
+    <h2>8. Virtual ECU data-flow (no hardware)</h2>
+    <div class="flow">
+      <div class="box">GUI</div><div class="arrow">TCP JSON/binary</div>
+      <div class="box">Virtual ECU process</div><div class="arrow">same services</div>
+      <div class="box">in-memory CAN bus</div><div class="arrow">simulated BCM/VCU/BMS</div>
+    </div>
+
+    <h2>9. Ownership rules</h2>
+    <ul>
+      <li>Producer fills a pool slot, sends pointer or value copy (frames are 16–24 bytes; copy is preferred).</li>
+      <li>ISO-TP owns the reassembly buffer until UDS copies out the PDU.</li>
+      <li>BLE characteristic writes are copied into a command struct before leaving the stack callback.</li>
+      <li>Config blobs are double-buffered; readers see a const snapshot.</li>
+    </ul>
+
+    <footer class="note">Document 05 of 10 · Architecture package</footer>
+  </main>
+</div>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>06 Control-flow architecture — AEGW-C3</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div class="shell">
+  <aside id="nav"></aside>
+  <main>
+    <h1 class="page">06 Control-flow architecture</h1>
+    <p class="lead">Boot, product, UDS, fault, and OTA state machines. Events come from queues, timers, and system-style blocking calls — not busy loops.</p>
+
+    <h2>1. Boot sequence</h2>
+    <pre class="sm">RESET
+  → early init (clocks, WDT start)
+  → read reset reason / last fault from NVS
+  → BSP pin map
+  → HAL init (selected instances)
+  → middleware (queues, logger)
+  → protocol init
+  → service init
+  → create product task subset
+  → product SM = RUN
+  → scheduler start (app_main returns)</pre>
+
+    <h2>2. Product run SM</h2>
+    <pre class="sm">INIT
+  → RUN                 (all critical inits OK)
+  → DEGRADED            (optional function lost, e.g. BLE down)
+  → FAULT               (critical path lost, e.g. CAN bus-off)
+  → RECOVERY            (driver reinit, session abort)
+  → RUN                 (recovered)
+  → SAFE                (recovery budget exceeded)
+SAFE: CAN TX silent, outputs default, BLE advertise "SAFE", WDT still kicked if possible</pre>
+
+    <h2>3. Fault manager (Safety agent)</h2>
+    <pre class="sm">NORMAL
+  --detect--> FAULT_DETECTED
+  --confirm--> DEGRADED          (non-critical)
+  --confirm--> RECOVERY          (critical, restartable)
+  --ok--> NORMAL
+  --fail budget--> SAFE_STATE</pre>
+    <p>Examples: CAN timeout, sensor fail, battery over-temp, low voltage, comms loss, task heartbeat miss.</p>
+
+    <h2>4. UDS session SM</h2>
+    <pre class="sm">DEFAULT (0x01)
+  --0x10 0x03 + OK--> EXTENDED
+  --0x10 0x02 + security--> PROGRAMMING
+EXTENDED / PROGRAMMING
+  --S3 timeout / 0x10 0x01--> DEFAULT
+  --0x11 reset--> ECU_RESET --> boot
+  --0x27 fail count--> LOCKOUT (timer)</pre>
+    <p>Tester Present 0x3E resets S3. Server and client are separate SMs sharing ISO-TP.</p>
+
+    <h2>5. ISO-TP transfer SM</h2>
+    <pre class="sm">IDLE
+  --SF--> RX_DONE / TX_DONE
+  --FF--> RX_WAIT_FC or TX_WAIT_FC
+  --FC CTS--> TX_CF / RX_CF
+  --N_TIMEOUT / overflow--> IDLE + error
+  --last CF--> DONE --> IDLE</pre>
+
+    <h2>6. BLE connection SM</h2>
+    <pre class="sm">ADV
+  --connect--> CONNECTED_OPEN
+  --paired/bonded--> CONNECTED_SECURE   (prototype)
+  --timeout / link loss--> RECONNECT_WAIT
+  --budget--> ADV
+  --auth fail--> ADV + rate limit</pre>
+
+    <h2>7. OTA / bootloader SM</h2>
+    <pre class="sm">BOOT_SELECT
+  → DOWNLOAD
+  → TRANSFER
+  → VERIFY (CRC/hash + metadata)
+  → COMMIT (swap mark)
+  → BOOT
+VERIFY fail or power loss in TRANSFER
+  → DISCARD inactive slot
+  → remain on current image</pre>
+
+    <h2>8. CAN driver control</h2>
+    <pre class="sm">STOPPED → STARTED
+STARTED --error warning--> ERROR_ACTIVE
+ERROR_ACTIVE --bus-off--> BUS_OFF
+BUS_OFF --recover policy / timer--> RECOVERING → STARTED
+RECOVERING --fail--> FAULT (fault manager)</pre>
+
+    <h2>9. ISR to task (concurrency control)</h2>
+    <table>
+      <tr><th>Source</th><th>ISR does</th><th>Task does</th></tr>
+      <tr><td>TWAI RX</td><td>Copy frame, queue send from ISR</td><td>Filter, publish, stats</td></tr>
+      <tr><td>UART RX</td><td>Byte to ring, notify</td><td>Line assemble, parse</td></tr>
+      <tr><td>GPIO</td><td>Notify or give sem</td><td>Debounce, HIL stamp</td></tr>
+      <tr><td>Timer</td><td>Notify or increment tick</td><td>ISO-TP / S3 / cycle check</td></tr>
+    </table>
+
+    <footer class="note">Document 06 of 10 · Architecture package</footer>
+  </main>
+</div>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

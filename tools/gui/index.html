@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AEGW-C3 Virtual ECU GUI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <div>
+      <p class="brand">AEGW-C3</p>
+      <h1>Virtual ECU &amp; product GUI</h1>
+    </div>
+    <div class="modes">
+      <button id="btn-virtual" class="on" type="button">Without hardware</button>
+      <button id="btn-hw" type="button">With hardware</button>
+      <span id="link" class="pill">Virtual ECU</span>
+    </div>
+  </header>
+
+  <section class="stats">
+    <article><small>SOC</small><strong id="soc">—</strong><span>%</span></article>
+    <article><small>Pack</small><strong id="pack">—</strong><span>V</span></article>
+    <article><small>Speed</small><strong id="spd">—</strong><span>km/h</span></article>
+    <article><small>Torque</small><strong id="trq">—</strong><span>Nm proto</span></article>
+    <article><small>Tmax</small><strong id="tmax">—</strong><span>°C</span></article>
+    <article><small>Fault</small><strong id="fault">—</strong><span id="sess"></span></article>
+  </section>
+
+  <main>
+    <section>
+      <h2>Products — run a use case</h2>
+      <div id="products" class="grid"></div>
+      <p class="hint">Each button runs the same scenario as the C/C++ host tests, on the live Virtual ECU bus.</p>
+    </section>
+    <section>
+      <h2>ECU cluster <span class="muted">SIM IDs</span></h2>
+      <div class="cards">
+        <div><h3>BCM 0x1A0</h3><pre id="bcm"></pre></div>
+        <div><h3>VCU 0x200</h3><pre id="vcu"></pre></div>
+        <div><h3>BMS 0x300</h3><pre id="bms"></pre></div>
+        <div><h3>TPMS 0x5A0</h3><pre id="tpms"></pre></div>
+      </div>
+      <div class="row">
+        <button id="btn-recover" type="button">Recover / clear DTCs</button>
+        <a href="/docs/index.html" id="docs" target="_blank" rel="noreferrer">Architecture docs</a>
+      </div>
+      <h2>DTCs</h2>
+      <table>
+        <thead><tr><th>Code</th><th>Text</th><th>Status</th></tr></thead>
+        <tbody id="dtc"></tbody>
+      </table>
+    </section>
+    <section class="wide">
+      <h2>CAN trace</h2>
+      <pre id="can" class="trace"></pre>
+      <h2>Event log</h2>
+      <pre id="log" class="trace short"></pre>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
