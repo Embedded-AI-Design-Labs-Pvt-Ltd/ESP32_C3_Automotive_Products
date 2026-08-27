@@ -10,3 +10,11 @@ Same platform APIs, different silicon or host.
 | `raspberry_pi_5/` | After ESP32-C3 core is stable | SocketCAN, BlueZ, Linux threads instead of FreeRTOS |
 
 A port may replace `drivers/` and `bsp/` only. Protocols and services must not include ESP-IDF headers.
+
+---
+
+**Embedded AI Design Labs Pvt Ltd**  
+Muhammad Samiullah  
+CTO & Founder  
+© 2026 Copyright. All rights reserved.
+

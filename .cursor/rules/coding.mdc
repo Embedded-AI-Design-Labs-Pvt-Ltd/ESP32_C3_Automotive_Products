@@ -1,0 +1,24 @@
+---
+description: C/C++ coding rules for the automotive platform
+globs: "**/*.{c,h,cpp,hpp}"
+alwaysApply: false
+---
+
+# Coding
+
+- C11 for portable core. C++ at host/tool edges only, not on the CAN RX path.
+- Public APIs return `ae_status_t`. `AE_OK` is success.
+- No heap on CAN RX, ISO-TP, or UDS data paths. Prefer static pools and `ae_ring`.
+- Const-correctness. `volatile` only for MMIO or ISR-shared flags, with a comment.
+- Document buffer ownership, thread context, and ISR-safety on public functions.
+- Do not add a `.c` file that only returns `AE_OK` to satisfy the linker.
+
+```c
+/* BAD */
+ae_status_t hal_can_send(const ae_can_frame_t *f, uint32_t t) {
+    (void)f; (void)t;
+    return AE_OK;
+}
+
+/* GOOD — real queue, real overflow error */
+```

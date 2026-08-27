@@ -1,0 +1,28 @@
+---
+description: Portability — application and services never call POSIX, FreeRTOS, or ESP-IDF
+alwaysApply: true
+---
+
+# Portability
+
+Application, `products/`, `platform/protocols/`, and `platform/services/` must not include:
+
+- `<pthread.h>`, `<semaphore.h>` (except inside `osal/posix/`)
+- FreeRTOS headers (except inside `osal/freertos/`)
+- ESP-IDF headers (`esp_*`, `driver/twai.h`, NimBLE) except inside `platform/drivers/esp32/` and `ports/esp32_c3/`
+
+Use OSAL (`os_thread`, `os_mutex`, `os_queue`, …) and HAL (`hal_can`, `hal_uart`, …) only.
+
+```c
+/* BAD — in uds.c or a product */
+#include <pthread.h>
+#include "freertos/FreeRTOS.h"
+#include "driver/twai.h"
+
+/* GOOD */
+#include "os_thread.h"
+#include "hal_can.h"
+```
+
+CAN IDs in `ae_can_ids.h` are prototype/simulated, never claimed as OEM.
+Do not claim ISO 26262 or WP.29 certification.

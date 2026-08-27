@@ -1,0 +1,16 @@
+---
+description: Automotive protocol and CAN prototype rules
+globs: "platform/protocols/**,platform/services/**,products/**,platform/common/ae_can_ids.h"
+alwaysApply: false
+---
+
+# Automotive
+
+- Protocols never parse in an ISR. ISR copies a frame to a queue.
+- UDS/DTC are shared services. BLE/UART/MQTT are transports, not a second diagnostic DB.
+- Vehicle physics and product policy do not live in CAN drivers.
+- Integrity failures (CRC, alive, timeout, range, plausibility) go to Fault Manager + DTC.
+- Mark simulated IDs as prototype. Do not invent OEM databases.
+
+ISO-TP and UDS already exist — harden with loss/timeout tests before rewriting.
+Do not start BLE or cloud work until OSAL + POSIX HAL + CAN path are reviewed.

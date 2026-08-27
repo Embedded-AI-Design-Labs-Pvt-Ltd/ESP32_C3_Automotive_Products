@@ -1,0 +1,15 @@
+---
+description: FreeRTOS task, ISR, and watchdog rules
+globs: "osal/freertos/**,ports/esp32_c3/**,platform/drivers/esp32/**"
+alwaysApply: false
+---
+
+# FreeRTOS
+
+- ISR: queue send or task notify only. No mutex, no log strings, no UDS.
+- Watchdog task never takes a mutex. Missing heartbeat → do not kick WDT.
+- Use mutex priority inheritance. Avoid priority inversion on the CAN path.
+- Not every product creates every task (ESP32-C3 SRAM).
+- Stack sizes in docs are targets until watermarks exist.
+
+POSIX Virtual ECU should use the same task catalog via OSAL so queues/timeouts are testable without silicon.

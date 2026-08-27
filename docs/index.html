@@ -11,12 +11,12 @@
   <aside id="nav"></aside>
   <main>
     <h1 class="page">Architecture portal</h1>
-    <p class="lead">Phase 2 architecture is complete. Host unit tests and the docs checker are runnable via <code>tools/scripts/run_all.ps1</code>.</p>
+    <p class="lead">One portable C core. Three targets: POSIX Virtual ECU, ESP32-C3/FreeRTOS, and a later cloud sidecar. Host tests: <code>tools/scripts/run_all.ps1</code> or CMake.</p>
 
-    <div class="banner warn">
-      <strong>Repository analysis.</strong> On 2026-08-26 the workspace
-      <code>e:\Sami\ESP32_C3_Automotive_Products</code> contained no source, no ESP-IDF project, and no prior documents.
-      This is a greenfield platform. The folder tree and these pages are the first artifacts.
+    <div class="banner ok">
+      Host C platform, 17 product use-cases, Virtual ECU GUI, and Arduino sketch generation already run without silicon.
+      Next implementation slice is <strong>OSAL (POSIX)</strong> — not BLE, not MQTT.
+      Markdown architecture: <a href="architecture/README.md">docs/architecture/</a>.
     </div>
 
     <h2>Governing rule</h2>
@@ -24,7 +24,7 @@
     <div class="layers">
       <div class="layer"><b>One core</b><span>HAL, BSP, drivers, FreeRTOS IPC, CAN, BLE, UART, GPIO, I2C, SPI, ISO-TP, UDS, diagnostics, logging, configuration, security, bootloader, tests</span></div>
       <div class="layer"><b>Products</b><span>Gateway, OBD, UDS tester, logger, test box, simulator, fault injection, EOL, HIL, EV battery, IDS, training kit</span></div>
-      <div class="layer"><b>Ports</b><span>ESP32-C3 (primary), Virtual ECU / GUI (no hardware), Arduino, Raspberry Pi 5</span></div>
+      <div class="layer"><b>Ports</b><span>POSIX Virtual ECU, ESP32-C3 (ESP-IDF + Arduino), Raspberry Pi 5 later, cloud gateway later</span></div>
     </div>
 
     <h2>Approval package</h2>
@@ -46,13 +46,19 @@
     <ul>
       <li><a href="pages/11-automotive-scenarios.html">Prototype CAN database</a> — BCM, VCU, BMS, IC, tester (simulated IDs)</li>
       <li><a href="pages/12-sequential-flows.html">Sequential flows</a> — boot, gateway, UDS, HIL, OTA, fault</li>
+      <li><a href="pages/13-posix-cloud-platform.html">13 POSIX · ESP32-C3 · Cloud</a> — three-target plan and OSAL order</li>
+      <li><a href="architecture/README.md">Architecture markdown</a> — gap analysis, phases, dependencies</li>
       <li><a href="presentation.html">Presentation deck</a> — keyboard left/right</li>
     </ul>
 
     <h2>What is deferred</h2>
-    <p>No C/C++ firmware, no Docker images, no Jenkins jobs, no Terraform apply, and no Arduino/Pi ports until this package is approved. After approval, implementation is module-by-module starting at Phase 3 (BSP/HAL).</p>
+    <p>ESP-IDF TWAI/NimBLE drivers, OSAL, MQTT/TLS cloud, Docker/Jenkins/Terraform, and dual-CAN. Host C protocols and the Virtual ECU GUI are already in tree. Implement OSAL next; do not start with BLE.</p>
 
     <footer class="note">AEGW-C3 prototype platform. Not ISO 26262, not UNECE WP.29 certified, not production cybersecurity.</footer>
+    <footer class="site-footer">
+      <p>Muhammad Samiullah · CTO &amp; Founder</p>
+      <p class="copy">© 2026 Copyright. All rights reserved.</p>
+    </footer>
   </main>
 </div>
 <script src="assets/nav.js"></script>

@@ -1,6 +1,8 @@
 /**
  * @file main.c
  * @brief ESP32-C3 product selector. Host builds use AE_HOST.
+ * @copyright Copyright (c) 2026 Embedded AI Design Labs Pvt Ltd.
+ *            Muhammad Samiullah — CTO & Founder. All rights reserved.
  */
 
 #include "ae_types.h"

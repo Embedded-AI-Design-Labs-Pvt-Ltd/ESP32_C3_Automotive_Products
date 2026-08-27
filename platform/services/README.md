@@ -9,3 +9,11 @@ Automotive services used by multiple products.
 - `ota_agent` — download / verify / commit / rollback states
 - `fault_manager` — NORMAL → FAULT → DEGRADED → RECOVERY → SAFE
 - `ecu_ident` — VIN, SW/HW version, fingerprint
+
+---
+
+**Embedded AI Design Labs Pvt Ltd**  
+Muhammad Samiullah  
+CTO & Founder  
+© 2026 Copyright. All rights reserved.
+

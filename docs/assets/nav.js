@@ -16,11 +16,18 @@
     { href: p + "10-agent-breakdown.html", label: "10 Agent breakdown", sec: "Documents" },
     { href: p + "11-automotive-scenarios.html", label: "11 CAN scenarios", sec: "Flows" },
     { href: p + "12-sequential-flows.html", label: "12 Sequential flows", sec: "Flows" },
+    { href: p + "13-posix-cloud-platform.html", label: "13 POSIX · ESP32 · Cloud", sec: "Flows" },
     { href: root + "presentation.html", label: "Presentation", sec: "Flows" }
   ];
 
   var here = location.pathname.replace(/\\/g, "/").split("/").pop();
-  var html = '<p class="brand">AEGW-C3</p><h1>ESP32-C3 Automotive Platform</h1>';
+  var html =
+    '<div class="brand-block">' +
+    '<img class="logo" src="' + root + 'assets/logo.png" alt="Embedded AI Design Labs" />' +
+    '<p class="brand">Embedded AI Design Labs</p>' +
+    "<h1>ESP32-C3 Automotive Platform</h1>" +
+    '<p class="slogan">ಎಂಬೆಡೆಡ್ ಎಐ ಲ್ಯಾಬ್ಸ್</p>' +
+    "</div>";
   var lastSec = "";
   items.forEach(function (it) {
     if (it.sec !== lastSec) {
@@ -32,4 +39,22 @@
     html += '<a href="' + it.href + '"' + cls + ">" + it.label + "</a>";
   });
   document.getElementById("nav").innerHTML = html;
+
+  var footHtml =
+    '<div class="legal">' +
+    "<p>Muhammad Samiullah · CTO &amp; Founder</p>" +
+    '<p class="copy">© 2026 Copyright. All rights reserved.</p>' +
+    "</div>";
+  var foot = document.querySelector(".site-footer");
+  if (foot) {
+    foot.innerHTML = footHtml;
+  } else {
+    var main = document.querySelector("main");
+    if (main) {
+      foot = document.createElement("footer");
+      foot.className = "site-footer";
+      foot.innerHTML = footHtml;
+      main.appendChild(foot);
+    }
+  }
 })();

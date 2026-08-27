@@ -18,7 +18,10 @@
     .kicker { letter-spacing:0.14em; text-transform:uppercase; color:var(--accent); font-size:13px; margin-bottom:10px; }
     ul { margin:0; padding-left:22px; }
     li { margin-bottom:8px; }
-    .bar { border-top:1px solid var(--line); padding:10px 72px; display:flex; justify-content:space-between; color:var(--muted); font-size:13px; }
+    .bar { border-top:1px solid var(--line); padding:12px 48px; display:flex; justify-content:space-between; align-items:center; color:var(--muted); font-size:15px; gap:20px; }
+    .title-logo { height:140px; width:auto; background:#000; border-radius:10px; margin:0 0 28px; display:block; }
+    .title-brand { font-size:34px; font-weight:700; margin:20px 0 6px; line-height:1.2; }
+    .title-slogan { font-size:22px; color:var(--accent); margin:0 0 16px; }
     .layers div { border:1px solid var(--line); padding:8px 12px; margin:6px 0; }
     .layers b { color:var(--teal); }
     code { color:var(--accent); }
@@ -27,9 +30,16 @@
 <body>
 <div class="deck">
   <section class="slide on">
+    <img class="title-logo" src="assets/logo.png" alt="Embedded AI Design Labs" />
     <div class="kicker">AEGW-C3 · Phase 2</div>
     <h1>Automotive ESP32-C3<br>Edge Gateway &amp; ECU Platform</h1>
     <p class="muted">One reusable platform. Many products. Architecture first — implementation after approval.</p>
+    <p class="muted" style="margin-top:28px">Embedded AI Design Labs Pvt Ltd</p>
+    <p class="title-brand">Embedded AI Design Labs</p>
+    <p class="title-slogan">ಎಂಬೆಡೆಡ್ ಎಐ ಲ್ಯಾಬ್ಸ್</p>
+    <p>Muhammad Samiullah</p>
+    <p class="muted">CTO &amp; Founder</p>
+    <p class="muted">© 2026 Copyright. All rights reserved.</p>
   </section>
   <section class="slide">
     <h2>What we found</h2>
@@ -89,8 +99,9 @@
     <p class="muted"><a href="index.html" style="color:#3d9a8a">Open the HTML portal</a></p>
   </section>
   <div class="bar">
-    <span>Arrow keys or click · Esc home</span>
+    <span>Muhammad Samiullah, CTO &amp; Founder</span>
     <span id="n"></span>
+    <span>© 2026 Copyright. All rights reserved.</span>
   </div>
 </div>
 <script>

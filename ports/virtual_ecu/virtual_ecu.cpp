@@ -1,6 +1,8 @@
 /**
  * @file virtual_ecu.cpp
  * @brief Host-side ECU cluster for GUI-without-hardware.
+ * @copyright Copyright (c) 2026 Embedded AI Design Labs Pvt Ltd.
+ *            Muhammad Samiullah — CTO & Founder. All rights reserved.
  */
 
 #include "virtual_ecu.hpp"

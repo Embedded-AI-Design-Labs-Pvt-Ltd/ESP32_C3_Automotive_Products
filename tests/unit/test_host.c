@@ -1,6 +1,8 @@
 /**
  * @file test_host.c
  * @brief Host unit tests: error codes and ring buffer.
+ * @copyright Copyright (c) 2026 Embedded AI Design Labs Pvt Ltd.
+ *            Muhammad Samiullah — CTO & Founder. All rights reserved.
  *
  * Setup / Stimulus / Expected / Timeout / Pass-fail / Cleanup
  * Timeout is not used on host (runs to completion).

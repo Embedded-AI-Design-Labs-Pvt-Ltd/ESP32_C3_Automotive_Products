@@ -21,18 +21,51 @@ a:hover { text-decoration: underline; }
 code, pre { font-family: var(--mono); font-size: 0.86em; }
 pre { background: var(--bg-3); border: 1px solid var(--line); padding: 14px 16px; overflow-x: auto; }
 
-.shell { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+.shell { display: grid; grid-template-columns: 320px 1fr; min-height: 100vh; }
 #nav {
   background: var(--bg-2);
   border-right: 1px solid var(--line);
-  padding: 22px 16px 40px;
+  padding: 22px 18px 40px;
   position: sticky;
   top: 0;
   height: 100vh;
   overflow: auto;
 }
-#nav .brand { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin: 0 0 6px; }
-#nav h1 { font-size: 15px; margin: 0 0 18px; font-weight: 600; line-height: 1.3; }
+#nav .brand-block {
+  margin: 0 0 22px;
+  padding: 0 0 18px;
+  border-bottom: 1px solid var(--line);
+}
+#nav .logo {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 0 16px;
+  border-radius: 8px;
+  background: #000;
+}
+#nav .brand {
+  font-size: 22px;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--ink);
+  margin: 0 0 6px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+#nav h1 {
+  font-size: 14px;
+  margin: 0 0 10px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--muted);
+}
+#nav .slogan {
+  color: var(--accent);
+  font-size: 16px;
+  margin: 0;
+  line-height: 1.4;
+}
 #nav a { display: block; color: var(--ink); padding: 6px 8px; border-left: 2px solid transparent; font-size: 13px; }
 #nav a:hover { background: var(--bg-3); text-decoration: none; }
 #nav a.active { border-left-color: var(--accent); color: var(--accent); }
@@ -103,9 +136,21 @@ tr:nth-child(even) td { background: #141924; }
 
 footer.note { margin-top: 48px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); padding-top: 12px; }
 
+.site-footer {
+  margin-top: 40px;
+  padding: 22px 0 8px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.site-footer p { margin: 0; }
+.site-footer .copy { margin-top: 8px; font-size: 13px; }
+
 @media (max-width: 900px) {
   .shell { grid-template-columns: 1fr; }
   #nav { position: relative; height: auto; }
+  #nav .brand { font-size: 24px; }
   main { padding: 24px 18px 60px; }
   .grid2 { grid-template-columns: 1fr; }
   .layer { grid-template-columns: 1fr; }

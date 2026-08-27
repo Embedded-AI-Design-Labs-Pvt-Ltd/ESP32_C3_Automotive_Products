@@ -1,6 +1,8 @@
 /**
  * @file arduino_port.cpp
  * @brief Arduino shim: same products, Arduino HAL later replaces hal_host.c.
+ * @copyright Copyright (c) 2026 Embedded AI Design Labs Pvt Ltd.
+ *            Muhammad Samiullah — CTO & Founder. All rights reserved.
  */
 #include "product_api.h"
 #include "ae_error.h"

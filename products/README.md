@@ -23,3 +23,11 @@ Each product is a thin composition on `platform/`. Host use-cases are implemente
 | P17 | `products_security_ota.c` | OTA CRC / rollback |
 
 C++ ports: `ports/virtual_ecu`, `ports/arduino`, `ports/raspberry_pi_5`.
+
+---
+
+**Embedded AI Design Labs Pvt Ltd**  
+Muhammad Samiullah  
+CTO & Founder  
+© 2026 Copyright. All rights reserved.
+

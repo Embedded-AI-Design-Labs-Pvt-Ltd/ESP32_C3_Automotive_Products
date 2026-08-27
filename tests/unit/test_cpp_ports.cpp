@@ -1,6 +1,8 @@
 /**
  * @file test_cpp_ports.cpp
  * @brief C++ Virtual ECU, Arduino, and Raspberry Pi 5 port shims.
+ * @copyright Copyright (c) 2026 Embedded AI Design Labs Pvt Ltd.
+ *            Muhammad Samiullah — CTO & Founder. All rights reserved.
  */
 
 #include <cstdio>
@@ -25,6 +27,12 @@ int main(void)
         fail = 1;
     } else {
         std::printf("PASS arduino_p01\n");
+    }
+    if (ae_err_is_ok(arduino_run_product(99))) {
+        std::printf("FAIL arduino_bad_idx\n");
+        fail = 1;
+    } else {
+        std::printf("PASS arduino_bad_idx\n");
     }
     if (rpi5_run_product(6) != AE_OK) {
         std::printf("FAIL rpi5_p07\n");

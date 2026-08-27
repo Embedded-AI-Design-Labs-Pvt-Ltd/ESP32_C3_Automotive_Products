@@ -10,3 +10,11 @@ Every automated case must define: Setup, Stimulus, Expected result, Timeout, Pas
 | `regression/` | CI | Prior failing cases, golden logs |
 
 Firmware implementation of tests starts with each module, not as a late dump.
+
+---
+
+**Embedded AI Design Labs Pvt Ltd**  
+Muhammad Samiullah  
+CTO & Founder  
+© 2026 Copyright. All rights reserved.
+

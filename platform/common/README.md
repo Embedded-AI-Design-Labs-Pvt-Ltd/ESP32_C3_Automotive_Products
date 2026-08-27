@@ -8,3 +8,11 @@ Planned files (implementation after approval):
 - `ae_error.h` / `ae_error.c` — 16-bit module|reason codes
 - `ae_config.h` — compile-time product and feature flags
 - `ae_limits.h` — queue depths, ISO-TP MTU, log line size
+
+---
+
+**Embedded AI Design Labs Pvt Ltd**  
+Muhammad Samiullah  
+CTO & Founder  
+© 2026 Copyright. All rights reserved.
+

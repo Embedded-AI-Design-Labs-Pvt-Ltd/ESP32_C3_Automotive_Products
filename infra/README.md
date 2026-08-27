@@ -11,3 +11,11 @@ Planned only in Phase 2. No live cloud resources are created until implementatio
 | `terraform/azure/` | Equivalent Blob + pipeline hook |
 
 Prototype cloud is for **artifact storage and CI**, not vehicle backend production.
+
+---
+
+**Embedded AI Design Labs Pvt Ltd**  
+Muhammad Samiullah  
+CTO & Founder  
+© 2026 Copyright. All rights reserved.
+

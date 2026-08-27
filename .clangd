@@ -1,0 +1,35 @@
+CompileFlags:
+  Add:
+    - -DAE_HOST=1
+    - -std=c11
+    - -Iplatform/common
+    - -Iplatform/hal
+    - -Iplatform/framework
+    - -Iplatform/protocols
+    - -Iplatform/services
+    - -Iproducts
+    - -Iports/virtual_ecu
+    - -Iports/arduino
+    - -Iports/raspberry_pi_5
+    - -Itests/stubs
+    - -Iosal
+If:
+  PathMatch: .*\.(c|h)
+---
+CompileFlags:
+  Add:
+    - -DAE_HOST=1
+    - -std=c++17
+    - -Iplatform/common
+    - -Iplatform/hal
+    - -Iplatform/framework
+    - -Iplatform/protocols
+    - -Iplatform/services
+    - -Iproducts
+    - -Iports/virtual_ecu
+    - -Iports/arduino
+    - -Iports/raspberry_pi_5
+    - -Itests/stubs
+    - -Iosal
+If:
+  PathMatch: .*\.(cpp|hpp)

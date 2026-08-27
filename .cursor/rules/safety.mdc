@@ -1,0 +1,22 @@
+---
+description: Prototype functional-safety rules — no certification claims
+globs: "docs/safety/**,platform/services/fault_mgr.*,docs/architecture/control_flow.md"
+alwaysApply: false
+---
+
+# Safety
+
+This repository is a **prototype**. Do not claim ISO 26262, ASIL, or certified safe state.
+
+- One fault state machine (`fault_mgr`). Do not fork a second SM.
+- Critical path: detect → debounce → DTC → DEGRADED or SAFE_STATE.
+- Prototype safe state: TX silent / default GPIO, keep diagnostics if possible.
+- FMEA lives in `docs/safety/` when written; distinguish prototype vs production.
+
+```c
+/* BAD */
+/* ISO 26262 ASIL-B compliant watchdog */
+
+/* GOOD */
+/* Prototype WDT feeder. Not an ASIL-rated safety mechanism. */
+```

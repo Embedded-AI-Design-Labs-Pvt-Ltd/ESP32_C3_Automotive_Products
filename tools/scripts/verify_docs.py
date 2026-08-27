@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Verify HTML portal files and relative links."""
+# Copyright (c) 2026 Embedded AI Design Labs Pvt Ltd.
+# Muhammad Samiullah — CTO & Founder. All rights reserved.
+"""Verify HTML portal files, relative links, and copyright footer."""
 
 from __future__ import annotations
 
@@ -10,6 +12,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 DOCS = ROOT / "docs"
 HREF = re.compile(r"""(?:href|src)=["']([^"'#]+)""")
+REQUIRED_FOOTER = (
+    "Muhammad Samiullah",
+    "CTO",
+    "2026",
+)
 
 
 def main() -> int:
@@ -19,6 +26,7 @@ def main() -> int:
         DOCS / "presentation.html",
         DOCS / "assets" / "style.css",
         DOCS / "assets" / "nav.js",
+        DOCS / "assets" / "logo.png",
     ]
     required += sorted((DOCS / "pages").glob("*.html"))
     for path in required:
@@ -31,6 +39,9 @@ def main() -> int:
         text = html.read_text(encoding="utf-8")
         if "<html" not in text.lower():
             errors.append(f"not html: {html}")
+        for needle in REQUIRED_FOOTER:
+            if needle not in text:
+                errors.append(f"missing footer '{needle}' in {html.name}")
         for match in HREF.findall(text):
             if match.startswith(("http://", "https://", "mailto:", "javascript:")):
                 continue

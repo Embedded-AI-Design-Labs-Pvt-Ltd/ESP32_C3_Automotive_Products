@@ -1,6 +1,8 @@
 /**
  * @file rpi5_port.cpp
  * @brief Raspberry Pi 5 shim: SocketCAN later; products unchanged.
+ * @copyright Copyright (c) 2026 Embedded AI Design Labs Pvt Ltd.
+ *            Muhammad Samiullah — CTO & Founder. All rights reserved.
  */
 #include "product_api.h"
 #include "ae_error.h"

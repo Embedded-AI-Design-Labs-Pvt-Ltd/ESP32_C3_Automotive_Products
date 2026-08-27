@@ -1,6 +1,8 @@
 /**
  * @file hal_host.c
  * @brief Host / Virtual ECU HAL: in-memory CAN bus and simulated peripherals.
+ * @copyright Copyright (c) 2026 Embedded AI Design Labs Pvt Ltd.
+ *            Muhammad Samiullah — CTO & Founder. All rights reserved.
  * @note ESP32-C3 port replaces this file with TWAI / NimBLE / NVS drivers.
  */
 
@@ -257,4 +259,27 @@ ae_status_t hal_wdg_kick(void)
 uint32_t hal_wdg_kicks(void)
 {
     return s_wdg;
+}
+
+static uint32_t s_ms;
+
+void hal_host_reset(void)
+{
+    memset(s_bus, 0, sizeof(s_bus));
+    memset(s_gpio, 0, sizeof(s_gpio));
+    memset(s_adc, 0, sizeof(s_adc));
+    memset(s_i2c, 0, sizeof(s_i2c));
+    memset(s_nvs, 0, sizeof(s_nvs));
+    s_bus_head = 0u;
+    s_bus_tail = 0u;
+    s_bus_count = 0u;
+    s_rx_cb = NULL;
+    s_rx_ctx = NULL;
+    s_wdg = 0u;
+    s_ms = 0u;
+}
+
+uint32_t hal_millis(void)
+{
+    return s_ms++;
 }

@@ -1,6 +1,8 @@
 /**
  * @file virtual_ecu.hpp
  * @brief C++ Virtual ECU: same CAN models, no ESP32 hardware.
+ * @copyright Copyright (c) 2026 Embedded AI Design Labs Pvt Ltd.
+ *            Muhammad Samiullah — CTO & Founder. All rights reserved.
  */
 #ifndef VIRTUAL_ECU_HPP
 #define VIRTUAL_ECU_HPP

@@ -14,3 +14,11 @@ Reusable modules only. Product behavior lives in `../products/`.
 | `framework/` | C | Ring buffer, state machine, callback registry, static pools |
 
 C++ is reserved for host tools and Virtual ECU. Firmware stays C for MISRA-inspired review and predictable ABI.
+
+---
+
+**Embedded AI Design Labs Pvt Ltd**  
+Muhammad Samiullah  
+CTO & Founder  
+© 2026 Copyright. All rights reserved.
+

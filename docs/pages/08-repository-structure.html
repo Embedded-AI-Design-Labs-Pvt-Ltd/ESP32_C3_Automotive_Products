@@ -11,45 +11,20 @@
   <aside id="nav"></aside>
   <main>
     <h1 class="page">08 Repository structure</h1>
-    <p class="lead">Folders exist now. Source files are created only after architecture approval, phase by phase.</p>
+    <p class="lead">Live code stays in <code>platform/</code>, <code>products/</code>, and <code>ports/</code>. Logical playbook names are mapped in <a href="../architecture/directory_structure.md">directory_structure.md</a> — no big-bang rename.</p>
 
     <pre>ESP32_C3_Automotive_Products/
-├── README.md
-├── .gitignore
-├── docs/                          HTML portal + presentation
-│   ├── index.html
-│   ├── presentation.html
-│   ├── assets/
-│   └── pages/                     01–12 documents
-├── platform/                      reusable modules
-│   ├── common/
-│   ├── hal/
-│   ├── bsp/
-│   ├── drivers/
-│   ├── middleware/
-│   ├── protocols/
-│   ├── services/
-│   └── framework/
-├── products/                      thin compositions (created when packaged)
-├── ports/
-│   ├── esp32_c3/                  primary IDF project (Phase 3)
-│   ├── virtual_ecu/
-│   ├── arduino/                   later
-│   └── raspberry_pi_5/            later
-├── tools/
-│   ├── gui/
-│   ├── virtual_ecu/
-│   └── scripts/
-├── tests/
-│   ├── unit/
-│   ├── integration/
-│   ├── hil/
-│   └── regression/
-├── infra/
-│   ├── docker/
-│   ├── jenkins/
-│   └── terraform/{aws,gcp,azure}
-└── .cursor/agents/                implementation prompts after approval</pre>
+├── CMakeLists.txt                 POSIX host tests (no ESP32 required)
+├── osal/                          POSIX + FreeRTOS backends (phase A2)
+├── apps/                          thin CLI entrypoints (later)
+├── cloud/  dashboard/  configs/   later; no secrets in git
+├── docs/                          HTML portal + docs/architecture/*.md
+├── platform/                      reusable C (HAL host impl exists)
+├── products/                      P01–P17 compositions
+├── ports/                         virtual_ecu, arduino, esp32_c3, rpi5
+├── tests/unit/                    host tests (integration/HIL later)
+├── tools/gui/                     Virtual ECU GUI
+└── .cursor/                       agents + rules</pre>
 
     <h2>ESP-IDF project (planned, Phase 3)</h2>
     <pre>ports/esp32_c3/
@@ -73,6 +48,11 @@
     <p>C: <code>can_driver.c/.h</code>, <code>can_service.c/.h</code>, <code>isotp.c/.h</code>, <code>uds_server.c/.h</code>, <code>uds_client.c/.h</code>. Prefix public APIs with <code>ae_</code> or module name as in document 07.</p>
 
     <footer class="note">Document 08 of 10 · Architecture package</footer>
+    <footer class="site-footer">
+      <p>Muhammad Samiullah · CTO &amp; Founder</p>
+      <p class="copy">© 2026 Copyright. All rights reserved.</p>
+    </footer>
+
   </main>
 </div>
 <script src="../assets/nav.js"></script>

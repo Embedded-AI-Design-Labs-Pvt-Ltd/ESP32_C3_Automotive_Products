@@ -1,0 +1,10 @@
+{
+  "cmake.configureOnOpen": false,
+  "clangd.arguments": ["--background-index"],
+  "files.associations": {
+    "*.h": "c",
+    "*.c": "c",
+    "*.hpp": "cpp",
+    "*.cpp": "cpp"
+  }
+}

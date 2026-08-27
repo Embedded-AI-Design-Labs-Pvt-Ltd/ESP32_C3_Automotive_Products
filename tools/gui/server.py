@@ -1,3 +1,5 @@
+# Copyright (c) 2026 Embedded AI Design Labs Pvt Ltd.
+# Muhammad Samiullah — CTO & Founder. All rights reserved.
 """AEGW-C3 Virtual ECU GUI server. No ESP32 hardware required."""
 
 from __future__ import annotations

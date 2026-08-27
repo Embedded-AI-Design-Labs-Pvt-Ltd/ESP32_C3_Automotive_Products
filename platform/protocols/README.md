@@ -7,3 +7,11 @@ Automotive protocol engines. No BLE GATT parsing. No product UX.
 - `uds` — client and server, services 0x10/11/14/19/22/27/2E/31/3E
 - `obd2` — Mode 01/03/04/09 over ISO-TP
 - `xcp_lite` — conceptual CTO/DTO mapping only
+
+---
+
+**Embedded AI Design Labs Pvt Ltd**  
+Muhammad Samiullah  
+CTO & Founder  
+© 2026 Copyright. All rights reserved.
+

@@ -1,0 +1,26 @@
+{
+  "configurations": [
+    {
+      "name": "Host (AE_HOST)",
+      "includePath": [
+        "${workspaceFolder}/platform/common",
+        "${workspaceFolder}/platform/hal",
+        "${workspaceFolder}/platform/framework",
+        "${workspaceFolder}/platform/protocols",
+        "${workspaceFolder}/platform/services",
+        "${workspaceFolder}/products",
+        "${workspaceFolder}/ports/virtual_ecu",
+        "${workspaceFolder}/ports/arduino",
+        "${workspaceFolder}/ports/raspberry_pi_5",
+        "${workspaceFolder}/tests/stubs",
+        "${workspaceFolder}/osal"
+      ],
+      "defines": ["AE_HOST=1"],
+      "cStandard": "c11",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "windows-clang-x64",
+      "compilerPath": "clang.exe"
+    }
+  ],
+  "version": 4
+}

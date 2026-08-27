@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>13 POSIX · ESP32-C3 · Cloud — AEGW-C3</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+<div class="shell">
+  <aside id="nav"></aside>
+  <main>
+    <h1 class="page">13 POSIX, ESP32-C3, and cloud</h1>
+    <p class="lead">Same portable C services. Three execution targets. Full markdown: <a href="../architecture/README.md">docs/architecture/</a>.</p>
+
+    <div class="banner warn">Application and services must not call pthread, FreeRTOS, or ESP-IDF. Those stay in OSAL, HAL, and drivers. CAN IDs are prototype/simulated. Not ISO 26262 or WP.29 certified.</div>
+
+    <h2>Targets</h2>
+    <table>
+      <tr><th>Target</th><th>Today</th><th>Next</th></tr>
+      <tr><td>POSIX / Virtual ECU</td><td>Host GCC tests, in-memory CAN, PC GUI</td><td>OSAL threads, CMake, vehicle simulator, fault injection</td></tr>
+      <tr><td>ESP32-C3 + FreeRTOS</td><td>Arduino sketch path; no IDF TWAI project yet</td><td>ESP-IDF HAL/drivers after POSIX OSAL</td></tr>
+      <tr><td>Cloud</td><td>Folder only — no MQTT</td><td>After diagnostics; credentials outside git</td></tr>
+    </table>
+
+    <h2>Order of work</h2>
+    <p>Requirements → architecture → C core (exists) → <strong>OSAL</strong> → POSIX HAL → CAN integrity → ISO-TP/UDS harden → health/fault → safety/security docs → BLE → cloud → products.</p>
+    <p>Do not start with BLE. Do not add fake <code>.c</code> files that only return <code>AE_OK</code>.</p>
+
+    <h2>Architecture documents</h2>
+    <ul>
+      <li><a href="../architecture/gap_analysis.md">Gap analysis</a></li>
+      <li><a href="../architecture/system_architecture.md">System architecture</a></li>
+      <li><a href="../architecture/software_architecture.md">Software architecture</a></li>
+      <li><a href="../architecture/runtime_architecture.md">Runtime / OSAL</a></li>
+      <li><a href="../architecture/development_phases.md">Development phases</a></li>
+      <li><a href="../architecture/test_strategy.md">Test strategy</a></li>
+    </ul>
+
+    <h2>Build without hardware</h2>
+    <pre>cmake -S . -B build/cmake
+cmake --build build/cmake --config Debug
+ctest --test-dir build/cmake -C Debug --output-on-failure</pre>
+    <p>Or: <code>tools/scripts/run_all.ps1</code>. GUI: <code>python tools/gui/server.py</code>.</p>
+
+    <footer class="note">Document 13 · Three-target platform · Muhammad Samiullah, CTO</footer>
+    <footer class="site-footer">
+      <p>Muhammad Samiullah · CTO &amp; Founder</p>
+      <p class="copy">© 2026 Copyright. All rights reserved.</p>
+    </footer>
+  </main>
+</div>
+<script src="../assets/nav.js"></script>
+</body>
+</html>

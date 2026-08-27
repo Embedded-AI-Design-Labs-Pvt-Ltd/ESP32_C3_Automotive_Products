@@ -1,6 +1,8 @@
 /**
  * @file test_all_products.c
  * @brief Run every product use-case. Setup/Stimulus live inside each *_run().
+ * @copyright Copyright (c) 2026 Embedded AI Design Labs Pvt Ltd.
+ *            Muhammad Samiullah — CTO & Founder. All rights reserved.
  */
 
 #include <stdio.h>

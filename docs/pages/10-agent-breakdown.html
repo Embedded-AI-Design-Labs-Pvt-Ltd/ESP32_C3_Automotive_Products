@@ -11,7 +11,7 @@
   <aside id="nav"></aside>
   <main>
     <h1 class="page">10 Agent / task breakdown</h1>
-    <p class="lead">Specialized agents, not one agent building the entire platform. Prompts live in <code>.cursor/agents/</code> for use after approval.</p>
+    <p class="lead">Named agents: <code>.cursor/agents/README.md</code>. Full roster: <a href="../architecture/agent_breakdown.md">agent_breakdown.md</a>. Next implementer: OSAL engineer.</p>
 
     <h2>1. Agent roster and first phase</h2>
     <table>
@@ -38,13 +38,12 @@
       <tr><td>20 Code Review</td><td>CRITICAL→LOW then fixes</td><td>end of each phase</td><td>implementer</td></tr>
     </table>
 
-    <h2>2. Recommended first implementation slice (after approval)</h2>
+    <h2>2. Recommended first implementation slice</h2>
     <ol>
-      <li>Agent 16 — HAL headers + ESP32-C3 + Virtual ECU stubs</li>
-      <li>Agent 03 — framework + error codes + comments standard</li>
-      <li>Agent 04 + 08 — logger, WDT, health, one demo task set</li>
-      <li>Agent 05 — CAN driver/service with test hooks</li>
-      <li>Agent 20 — review that slice only</li>
+      <li>OSAL POSIX + unit tests (<code>osal_engineer.md</code>)</li>
+      <li>POSIX virtual hardware split (<code>posix_virtual_hw.md</code>)</li>
+      <li>Code review — no pthread/IDF in products or protocols</li>
+      <li>Only then ESP32-C3 drivers. BLE and cloud later.</li>
     </ol>
 
     <h2>3. What each agent must produce</h2>
@@ -59,6 +58,11 @@
     <p>Agent 20 does not edit first. It files CRITICAL / HIGH / MEDIUM / LOW. Fixes are a second pass, module-local.</p>
 
     <footer class="note">Document 10 of 10 · Architecture package</footer>
+    <footer class="site-footer">
+      <p>Muhammad Samiullah · CTO &amp; Founder</p>
+      <p class="copy">© 2026 Copyright. All rights reserved.</p>
+    </footer>
+
   </main>
 </div>
 <script src="../assets/nav.js"></script>

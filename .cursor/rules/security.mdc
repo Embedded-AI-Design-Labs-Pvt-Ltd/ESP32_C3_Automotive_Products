@@ -1,0 +1,16 @@
+---
+description: Prototype cybersecurity — no WP.29 / R155 claims
+globs: "platform/services/**,cloud/**,docs/architecture/**"
+alwaysApply: false
+---
+
+# Security
+
+Prototype only. Not UNECE R155 / WP.29 certified.
+
+- Cloud credentials and TLS keys never go in git. Use environment or gitignored files.
+- CAN anomaly detection is a monitor (unknown ID, flood, bad DLC/counter), not a type approval.
+- Rate-limit diagnostic and BLE writes. Log security event IDs.
+- Do not treat MQTT or BLE as a safety channel.
+
+Document limitations next to any auth, pairing, or encryption code.

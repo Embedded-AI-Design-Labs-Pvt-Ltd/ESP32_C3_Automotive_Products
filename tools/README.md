@@ -7,3 +7,11 @@
 | `scripts/` | Flash, log parse, DBC export, regression runners |
 
 GUI and Virtual ECU are C++ (or later a web UI). They consume the same CAN database and UDS DID tables as firmware.
+
+---
+
+**Embedded AI Design Labs Pvt Ltd**  
+Muhammad Samiullah  
+CTO & Founder  
+© 2026 Copyright. All rights reserved.
+

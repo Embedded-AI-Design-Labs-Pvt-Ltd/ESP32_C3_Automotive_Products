@@ -10,10 +10,13 @@ dependencies.lock
 *.hex
 
 # IDE
-.vscode/
 .idea/
 *.user
 *.suo
+.vscode/*
+!.vscode/extensions.json
+!.vscode/c_cpp_properties.json
+!.vscode/settings.json
 
 # Python / host tools
 __pycache__/
