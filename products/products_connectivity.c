@@ -15,6 +15,9 @@
 #include "ecu_models.h"
 #include "hal_can.h"
 #include "hal_misc.h"
+#if defined(AE_HOST)
+#include "hal_can_adapter.h"
+#endif
 #include "isotp.h"
 #include "uds.h"
 
@@ -59,9 +62,12 @@ static void gw_on_ble(uint16_t char_id, const uint8_t *data, uint16_t len, void 
 
 ae_status_t p01_ble_can_gateway_init(void)
 {
-    ae_can_cfg_t cfg = {500000u};
-
+#if defined(AE_HOST)
+    (void)hal_can_init_from_env();
+#else
+    ae_can_cfg_t cfg = AE_CAN_CFG_500K;
     (void)hal_can_init(&cfg);
+#endif
     (void)can_svc_init();
     (void)ble_auto_init(gw_on_ble, NULL);
     s_got_can = 0;

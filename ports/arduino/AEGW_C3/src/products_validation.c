@@ -15,6 +15,9 @@
 #include "fault_mgr.h"
 #include "hal_can.h"
 #include "hal_misc.h"
+#if defined(AE_HOST)
+#include "hal_can_adapter.h"
+#endif
 #include "uds.h"
 
 #include <string.h>
@@ -68,10 +71,13 @@ ae_status_t p06_ecu_test_box_run(void)
 
 ae_status_t p07_ecu_simulator_init(void)
 {
-    ae_can_cfg_t cfg = {500000u};
-
-    ecu_models_init();
+#if defined(AE_HOST)
+    (void)hal_can_init_from_env();
+#else
+    ae_can_cfg_t cfg = AE_CAN_CFG_500K;
     (void)hal_can_init(&cfg);
+#endif
+    ecu_models_init();
     (void)can_svc_init();
     (void)uds_server_init(sim_tx);
     (void)uds_register_did(AE_DID_VIN, product_did_vin_read, NULL);

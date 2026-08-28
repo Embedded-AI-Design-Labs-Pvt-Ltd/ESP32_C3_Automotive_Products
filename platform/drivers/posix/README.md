@@ -1,12 +1,13 @@
-# POSIX drivers — not split yet
+# POSIX drivers
 
-Host HAL currently lives in `platform/hal/hal_host.c`. Phase A3 moves simulation backends here (`can`, `uart`, `gpio`, …) without changing product includes of `hal_can.h`.
+| File | Role |
+|---|---|
+| `hal_can_usb.c` | Host Classical CAN: **sim** + **SocketCAN** (CANable/PCAN) + **SLCAN** + optional **PCAN-Basic** |
 
-No stub `.c` files in this folder until that phase.
+Products and services include only `hal_can.h`. Adapter selection is via `hal_can_adapter.h` / env vars on `AE_HOST` builds.
+
+See `tools/can/README.md` and `linux/socketcan/`.
 
 ---
 
-**Embedded AI Design Labs Pvt Ltd**  
-Muhammad Samiullah  
-CTO & Founder  
-© 2026 Copyright. All rights reserved.
+**Embedded AI Design Labs Pvt Ltd** · Muhammad Samiullah · © 2026

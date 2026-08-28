@@ -38,6 +38,7 @@ set(AE_PLATFORM_SRC
   platform/common/ae_error.c
   platform/framework/ae_ring.c
   platform/hal/hal_host.c
+  platform/drivers/posix/hal_can_usb.c
   platform/protocols/can_service.c
   platform/protocols/crc_e2e.c
   platform/protocols/isotp.c
@@ -53,6 +54,7 @@ set(AE_PLATFORM_SRC
   products/products_validation.c
   products/products_security_ota.c
   products/products_registry.c
+  products/usecases.c
   ports/arduino/aegw_runtime.c
 )
 
@@ -75,6 +77,12 @@ target_link_libraries(test_coverage PRIVATE ae_platform)
 add_executable(test_crc_e2e tests/unit/test_crc_e2e.c)
 target_link_libraries(test_crc_e2e PRIVATE ae_platform)
 
+add_executable(test_usecases tests/unit/test_usecases.c)
+target_link_libraries(test_usecases PRIVATE ae_platform)
+
+add_executable(test_can_adapter tests/unit/test_can_adapter.c)
+target_link_libraries(test_can_adapter PRIVATE ae_platform)
+
 add_executable(test_cpp_ports
   tests/unit/test_cpp_ports.cpp
   ports/virtual_ecu/virtual_ecu.cpp
@@ -84,9 +92,20 @@ add_executable(test_cpp_ports
 target_link_libraries(test_cpp_ports PRIVATE ae_platform)
 target_include_directories(test_cpp_ports PRIVATE ${AE_INC})
 
+add_executable(test_can_analyzer tests/unit/test_can_analyzer.cpp)
+target_include_directories(test_can_analyzer PRIVATE ${AE_INC})
+
+add_executable(test_usb_can_adapter tests/unit/test_usb_can_adapter.cpp)
+target_link_libraries(test_usb_can_adapter PRIVATE ae_platform)
+target_include_directories(test_usb_can_adapter PRIVATE ${AE_INC})
+
 enable_testing()
 add_test(NAME test_host COMMAND test_host)
 add_test(NAME test_all_products COMMAND test_all_products)
 add_test(NAME test_coverage COMMAND test_coverage)
 add_test(NAME test_crc_e2e COMMAND test_crc_e2e)
+add_test(NAME test_usecases COMMAND test_usecases)
+add_test(NAME test_can_adapter COMMAND test_can_adapter)
 add_test(NAME test_cpp_ports COMMAND test_cpp_ports)
+add_test(NAME test_can_analyzer COMMAND test_can_analyzer)
+add_test(NAME test_usb_can_adapter COMMAND test_usb_can_adapter)

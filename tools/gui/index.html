@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AEGW-C3 Automotive Use Cases</title>
+  <title>AEGW-C3 Lab — UDS / CAN / 120 Use Cases</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -13,12 +13,12 @@
       <div>
         <p class="brand">Embedded AI Design Labs</p>
         <p class="slogan">ಎಂಬೆಡೆಡ್ ಎಐ ಲ್ಯಾಬ್ಸ್</p>
-        <h1>Automotive Use Cases</h1>
+        <h1>Automotive + Cyber Lab · Classical CAN</h1>
       </div>
     </div>
     <div class="modes">
-      <button id="btn-virtual" class="on" type="button">Without hardware</button>
-      <button id="btn-hw" type="button">With hardware</button>
+      <button id="btn-virtual" class="on" type="button">Simulation</button>
+      <button id="btn-hw" type="button">Live / hardware</button>
       <span id="link" class="pill">Virtual ECU</span>
     </div>
   </header>
@@ -28,17 +28,94 @@
     <article><small>Pack</small><strong id="pack">—</strong><span>V</span></article>
     <article><small>Speed</small><strong id="spd">—</strong><span>km/h</span></article>
     <article><small>Torque</small><strong id="trq">—</strong><span>Nm proto</span></article>
-    <article><small>Tmax</small><strong id="tmax">—</strong><span>°C</span></article>
+    <article><small>CAN frames</small><strong id="cantot">—</strong><span id="anunk"></span></article>
     <article><small>Fault</small><strong id="fault">—</strong><span id="sess"></span></article>
   </section>
 
+  <nav class="tabs" id="tabs">
+    <button type="button" data-tab="products" class="on">Products</button>
+    <button type="button" data-tab="usecases">120 Use cases</button>
+    <button type="button" data-tab="uds">UDS simulator</button>
+    <button type="button" data-tab="analyzer">CAN analyzer</button>
+    <button type="button" data-tab="cluster">ECU cluster</button>
+  </nav>
+
   <main>
-    <section>
-      <h2>Products — run a use case</h2>
+    <section id="panel-products" class="panel on">
+      <h2>Products P01–P17</h2>
       <div id="products" class="grid"></div>
-      <p class="hint">Each button runs the same scenario as the C/C++ host tests, on the live Virtual ECU bus.</p>
+      <p class="hint">Same scenarios as host C/C++ product tests on the Virtual ECU bus.</p>
     </section>
-    <section>
+
+    <section id="panel-usecases" class="panel">
+      <h2>120 real-time lab use cases <span class="muted" id="uc-count"></span></h2>
+      <div class="row wrap">
+        <input id="uc-q" type="search" placeholder="Filter name or ID…" />
+        <select id="uc-cat">
+          <option value="">All categories</option>
+          <option>CAN</option><option>UDS</option><option>DIAG</option><option>FAULT</option>
+          <option>CYBER</option><option>VEHICLE</option><option>E2E</option><option>HIL</option>
+          <option>OTA</option><option>GATEWAY</option>
+        </select>
+        <button id="uc-refresh" type="button">Refresh</button>
+      </div>
+      <div id="usecases" class="uc-grid"></div>
+      <p class="hint">Authoritative pass/fail: <code>test_usecases</code> / <code>ae_usecase_run()</code> in C. GUI drives bus visuals.</p>
+    </section>
+
+    <section id="panel-uds" class="panel">
+      <h2>UDS simulator <span class="muted">0x7E0 / 0x7E8 · sim + live intent</span></h2>
+      <div class="cards uds-cards">
+        <div>
+          <h3>Session</h3>
+          <pre id="uds-meta"></pre>
+          <div class="row wrap">
+            <button type="button" data-uds="10 01">0x10 Default</button>
+            <button type="button" data-uds="10 03">0x10 Extended</button>
+            <button type="button" data-uds="10 02">0x10 Programming</button>
+            <button type="button" data-uds="3E 00">0x3E TesterPresent</button>
+          </div>
+          <div class="row wrap">
+            <button type="button" data-uds="22 F1 90">0x22 VIN F190</button>
+            <button type="button" data-uds="22 F1 89">0x22 SW F189</button>
+            <button type="button" data-uds="27 01">0x27 Seed</button>
+            <button type="button" data-uds="14 FF FF FF">0x14 Clear DTC</button>
+          </div>
+        </div>
+        <div>
+          <h3>Custom request</h3>
+          <label>SID <input id="uds-sid" value="0x22" /></label>
+          <label>Data (hex) <input id="uds-data" value="F1 90" /></label>
+          <button id="uds-send" type="button">Send</button>
+          <h3>Last exchange</h3>
+          <pre id="uds-io"></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="panel-analyzer" class="panel">
+      <h2>CAN analyzer <span class="muted">live bus + inject</span></h2>
+      <div class="row wrap">
+        <button id="an-pause" type="button">Pause</button>
+        <button id="an-resume" type="button">Resume</button>
+        <button id="an-clear" type="button">Clear</button>
+        <label>Filter ID <input id="an-filter" placeholder="all or 0x1A0" /></label>
+        <button id="an-apply" type="button">Apply filter</button>
+      </div>
+      <div class="row wrap">
+        <label>Inject ID <input id="inj-id" value="0x666" /></label>
+        <label>Data <input id="inj-data" value="DE AD BE EF" /></label>
+        <button id="an-inject" type="button">Inject frame</button>
+      </div>
+      <div class="cards">
+        <div><h3>Rates (top)</h3><pre id="an-top"></pre></div>
+        <div><h3>Security</h3><pre id="an-sec"></pre></div>
+      </div>
+      <h2>CAN trace</h2>
+      <pre id="can" class="trace"></pre>
+    </section>
+
+    <section id="panel-cluster" class="panel">
       <h2>ECU cluster <span class="muted">SIM IDs</span></h2>
       <div class="cards">
         <div><h3>BCM 0x1A0</h3><pre id="bcm"></pre></div>
@@ -55,17 +132,13 @@
         <thead><tr><th>Code</th><th>Text</th><th>Status</th></tr></thead>
         <tbody id="dtc"></tbody>
       </table>
-    </section>
-    <section class="wide">
-      <h2>CAN trace</h2>
-      <pre id="can" class="trace"></pre>
       <h2>Event log</h2>
       <pre id="log" class="trace short"></pre>
     </section>
   </main>
   <footer class="site-footer">
     <p>Muhammad Samiullah · CTO &amp; Founder</p>
-    <p class="copy">© 2026 Copyright. All rights reserved.</p>
+    <p class="copy">© 2026 Copyright. All rights reserved. Lab / Virtual ECU only — not road-vehicle or ISO 26262 certified.</p>
   </footer>
   <script src="app.js"></script>
 </body>

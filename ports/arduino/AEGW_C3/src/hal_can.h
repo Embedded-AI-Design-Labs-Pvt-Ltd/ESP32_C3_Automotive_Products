@@ -1,6 +1,6 @@
 /**
  * @file hal_can.h
- * @brief CAN HAL contract. Host uses an in-memory bus; MCU uses TWAI.
+ * @brief CAN HAL contract. Host: sim or USB adapter; MCU: TWAI.
  * @copyright Copyright (c) 2026 Embedded AI Design Labs Pvt Ltd.
  *            Muhammad Samiullah — CTO & Founder. All rights reserved.
  */
@@ -13,9 +13,21 @@
 extern "C" {
 #endif
 
+/** Host backend. MCU ports ignore backend and use on-chip CAN/TWAI. */
+#define AE_CAN_BE_SIM       0u /* In-memory Virtual ECU bus (unit tests) */
+#define AE_CAN_BE_SOCKETCAN 1u /* Linux: CANable gs_usb / PCAN peak_usb / any SocketCAN */
+#define AE_CAN_BE_PCAN      2u /* Windows/Linux: PEAK PCAN-Basic API */
+#define AE_CAN_BE_SLCAN     3u /* CANable (or clone) in SLCAN serial mode */
+
 typedef struct {
-    uint32_t bitrate;
+    uint32_t bitrate;     /**< Classical CAN bitrate (e.g. 500000). */
+    uint8_t backend;      /**< AE_CAN_BE_* ; 0 = sim. */
+    char iface[32];       /**< "can0", "PCAN_USBBUS1", "COM3", "/dev/ttyACM0". */
 } ae_can_cfg_t;
+
+/** Fully-initialized Classical CAN @ 500 kbit/s, sim backend (host). */
+#define AE_CAN_CFG_500K \
+    { .bitrate = 500000u, .backend = AE_CAN_BE_SIM, .iface = {0} }
 
 typedef struct {
     uint32_t id;

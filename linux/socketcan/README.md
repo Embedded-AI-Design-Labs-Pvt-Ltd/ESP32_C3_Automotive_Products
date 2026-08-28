@@ -2,6 +2,16 @@
 
 ESP32-C3 lab uses **Classical CAN only** (no CAN-FD).
 
+## C/C++ host (same adapters)
+
+```bash
+export AE_CAN_BACKEND=socketcan   # canable | pcan | slcan | sim
+export AE_CAN_IFACE=can0
+# Windows SLCAN example: AE_CAN_BACKEND=slcan AE_CAN_IFACE=COM3
+```
+
+All 120 use cases and P01–P17 host paths call `hal_can_init_from_env()` / env cfg. See `tools/can/README.md`.
+
 ## Quick start (CANable candleLight → can0)
 
 ```bash

@@ -1,9 +1,9 @@
 /**
  * @file hal_host.c
- * @brief Host / Virtual ECU HAL: in-memory CAN bus and simulated peripherals.
+ * @brief Host / Virtual ECU HAL: simulated peripherals (GPIO/ADC/NVS/…).
  * @copyright Copyright (c) 2026 Embedded AI Design Labs Pvt Ltd.
  *            Muhammad Samiullah — CTO & Founder. All rights reserved.
- * @note ESP32-C3 port replaces this file with TWAI / NimBLE / NVS drivers.
+ * @note Classical CAN lives in platform/drivers/posix/hal_can_usb.c (sim + USB adapters).
  */
 
 #include "hal_can.h"
@@ -13,16 +13,8 @@
 
 #include <string.h>
 
-#define AE_BUS_DEPTH 64u
 #define AE_NVS_MAX   8u
 #define AE_GPIO_MAX  16u
-
-static ae_can_frame_t s_bus[AE_BUS_DEPTH];
-static uint32_t s_bus_head;
-static uint32_t s_bus_tail;
-static uint32_t s_bus_count;
-static ae_can_rx_isr_cb_t s_rx_cb;
-static void *s_rx_ctx;
 
 static uint8_t s_gpio[AE_GPIO_MAX];
 static uint16_t s_adc[8];
@@ -37,76 +29,6 @@ typedef struct {
 } ae_nvs_slot_t;
 
 static ae_nvs_slot_t s_nvs[AE_NVS_MAX];
-
-ae_status_t hal_can_init(const ae_can_cfg_t *cfg)
-{
-    (void)cfg;
-    hal_can_bus_reset();
-    return AE_OK;
-}
-
-void hal_can_bus_reset(void)
-{
-    s_bus_head = 0u;
-    s_bus_tail = 0u;
-    s_bus_count = 0u;
-}
-
-uint32_t hal_can_bus_count(void)
-{
-    return s_bus_count;
-}
-
-ae_status_t hal_can_attach_rx(ae_can_rx_isr_cb_t cb, void *ctx)
-{
-    s_rx_cb = cb;
-    s_rx_ctx = ctx;
-    return AE_OK;
-}
-
-ae_status_t hal_can_set_filter(const ae_can_filter_t *filters, uint8_t count)
-{
-    (void)filters;
-    (void)count;
-    return AE_OK;
-}
-
-/**
- * @brief Enqueue a frame. Host "ISR" callback runs in the caller context.
- */
-ae_status_t hal_can_send(const ae_can_frame_t *frame, uint32_t timeout_ms)
-{
-    uint32_t next;
-
-    (void)timeout_ms;
-    if (frame == NULL) {
-        return ae_err_make(AE_MOD_HAL, 1u);
-    }
-    next = (s_bus_head + 1u) % AE_BUS_DEPTH;
-    if (next == s_bus_tail) {
-        return ae_err_make(AE_MOD_HAL, 2u);
-    }
-    s_bus[s_bus_head] = *frame;
-    s_bus_head = next;
-    s_bus_count++;
-    if (s_rx_cb != NULL) {
-        s_rx_cb(frame, s_rx_ctx);
-    }
-    return AE_OK;
-}
-
-ae_status_t hal_can_recv(ae_can_frame_t *frame)
-{
-    if (frame == NULL) {
-        return ae_err_make(AE_MOD_HAL, 1u);
-    }
-    if (s_bus_head == s_bus_tail) {
-        return ae_err_make(AE_MOD_HAL, 3u);
-    }
-    *frame = s_bus[s_bus_tail];
-    s_bus_tail = (s_bus_tail + 1u) % AE_BUS_DEPTH;
-    return AE_OK;
-}
 
 ae_status_t hal_uart_init(const ae_uart_cfg_t *cfg)
 {
@@ -265,18 +187,13 @@ static uint32_t s_ms;
 
 void hal_host_reset(void)
 {
-    memset(s_bus, 0, sizeof(s_bus));
     memset(s_gpio, 0, sizeof(s_gpio));
     memset(s_adc, 0, sizeof(s_adc));
     memset(s_i2c, 0, sizeof(s_i2c));
     memset(s_nvs, 0, sizeof(s_nvs));
-    s_bus_head = 0u;
-    s_bus_tail = 0u;
-    s_bus_count = 0u;
-    s_rx_cb = NULL;
-    s_rx_ctx = NULL;
     s_wdg = 0u;
     s_ms = 0u;
+    hal_can_bus_reset();
 }
 
 uint32_t hal_millis(void)

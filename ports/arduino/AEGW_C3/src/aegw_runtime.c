@@ -19,6 +19,9 @@
 #include "fault_mgr.h"
 #include "hal_can.h"
 #include "hal_misc.h"
+#if defined(AE_HOST)
+#include "hal_can_adapter.h"
+#endif
 #include "isotp.h"
 #include "product_api.h"
 #include "product_dids.h"
@@ -65,14 +68,20 @@ static void on_can_rx(const ae_can_frame_t *f, void *ctx)
 
 void aegw_runtime_setup(void)
 {
-    ae_can_cfg_t can = {500000u};
     ae_uart_cfg_t uart = {115200u};
     ae_gpio_cfg_t gpio = {8u, 1u};
     isotp_cfg_t iso = {AE_CAN_UDS_RESP, AE_CAN_UDS_REQ, 0u, 0u};
     uint8_t n = 0u;
     const ae_product_desc_t *tab;
 
-    (void)hal_can_init(&can);
+#if defined(AE_HOST)
+    (void)hal_can_init_from_env();
+#else
+    {
+        ae_can_cfg_t can = AE_CAN_CFG_500K;
+        (void)hal_can_init(&can);
+    }
+#endif
     (void)hal_uart_init(&uart);
     (void)hal_gpio_init(&gpio);
     (void)hal_can_attach_rx(on_can_rx, NULL);

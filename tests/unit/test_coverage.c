@@ -137,7 +137,7 @@ static void test_error_ring(void)
 
 static void test_hal(void)
 {
-    ae_can_cfg_t cc = {500000};
+    ae_can_cfg_t cc = AE_CAN_CFG_500K;
     ae_uart_cfg_t uc = {115200};
     ae_gpio_cfg_t gc = {1, 1};
     ae_can_filter_t flt = {0x1A0, 0x7FF};
@@ -206,7 +206,7 @@ static void test_hal(void)
 
     /* Fill software CAN ring (depth 64 → 63 frames). */
     {
-        ae_can_cfg_t c2 = {500000};
+        ae_can_cfg_t c2 = AE_CAN_CFG_500K;
         uint8_t k;
         (void)hal_can_init(&c2);
         memset(&f, 0, sizeof(f));

@@ -32,7 +32,7 @@ static void on_rx(const ae_can_frame_t *f, void *c)
 
 int main(void)
 {
-    ae_can_cfg_t can = {500000u};
+    ae_can_cfg_t can = AE_CAN_CFG_500K;
     ae_uart_cfg_t uart = {115200u};
     ae_gpio_cfg_t gpio = {2u, 1u};
     ae_can_filter_t flt = {0x1A0u, 0x7FFu};

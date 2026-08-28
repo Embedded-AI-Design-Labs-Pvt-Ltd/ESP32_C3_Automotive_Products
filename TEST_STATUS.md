@@ -11,8 +11,11 @@ Last updated: 2026-08-28
 | Module coverage | `tests/unit/test_coverage.c` | PASS (~98% lines) |
 | C++ ports | `tests/unit/test_cpp_ports.cpp` | PASS |
 | Arduino HAL host | `tests/unit/test_arduino_hal.cpp` | PASS |
-| CRC/E2E | `tests/unit/test_crc_e2e.c` | Added this phase |
-| DBC Python | `linux/python/tests/test_dbc_signals.py` | Added this phase |
+| CRC/E2E | `tests/unit/test_crc_e2e.c` | PASS |
+| 120 auto/cyber use cases | `tests/unit/test_usecases.c` | PASS |
+| C++ CAN analyzer | `tests/unit/test_can_analyzer.cpp` | PASS |
+| USB-CAN adapter | `tests/unit/test_can_adapter.c` / `test_usb_can_adapter.cpp` | PASS (sim; HIL needs adapter) |
+| DBC Python | `linux/python/tests/test_dbc_signals.py` | PASS |
 | Integration | `tests/integration/` | Scaffold |
 | HIL | `tests/hil/` | Scaffold |
 | Fault injection | `tests/fault_injection/` | Scaffold |

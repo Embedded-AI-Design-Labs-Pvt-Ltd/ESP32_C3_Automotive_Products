@@ -7,13 +7,16 @@ Last updated: 2026-08-28 · Agent 00 orchestrator
 | Target | Command | Status |
 |---|---|---|
 | Host unit + products | `tools/scripts/run_all.ps1` | PASS (2026-08-28) |
-| CMake/CTest | `cmake` + `ctest -C Debug` (5 tests) | PASS |
+| CMake/CTest | `cmake` + `ctest -C Debug` | PASS (incl. usecases + analyzer) |
 | CRC/E2E | `test_crc_e2e` | PASS |
+| 120 use cases | `test_usecases` / `products/usecases.c` | PASS |
+| C++ CAN analyzer | `test_can_analyzer` | PASS |
 | DBC Python signals | `linux/python/tests/test_dbc_signals.py` | PASS |
 | Arduino ESP32-C3 compile | `arduino-cli` esp32c3 | PASS (~325 KB) |
 | ESP-IDF flash TWAI | `eim run "idf.py build" v5.5.1` in `ports/esp32_c3` | **NOT READY** (no IDF project) |
 | Linux SocketCAN HIL | `linux/socketcan/setup_can0.sh` | Scripts present; needs Linux + adapter |
-| Virtual ECU GUI | `python tools/gui/server.py` | PASS on :8765 |
+| Virtual ECU GUI | `python tools/gui/server.py` | PASS on :8765 (UDS + analyzer + 120 UC) |
+| USB-CAN HAL | `hal_can_usb.c` sim/SocketCAN/PCAN/SLCAN | PASS sim (`test_can_adapter`) |
 
 ## Toolchain (developer PC)
 

@@ -16,6 +16,7 @@ HEADERS = [
     "platform/common/ae_copyright.h",
     "platform/framework/ae_ring.h",
     "platform/hal/hal_can.h",
+    "platform/hal/hal_can_adapter.h",
     "platform/hal/hal_misc.h",
     "platform/protocols/can_service.h",
     "platform/protocols/crc_e2e.h",
@@ -28,6 +29,7 @@ HEADERS = [
     "platform/services/ecu_models.h",
     "products/product_api.h",
     "products/product_dids.h",
+    "products/usecases.h",
     "ports/arduino/aegw_runtime.h",
 ]
 
@@ -49,6 +51,7 @@ UNITS = [
     "products/products_validation.c",
     "products/products_security_ota.c",
     "products/products_registry.c",
+    "products/usecases.c",
     "ports/arduino/aegw_runtime.c",
 ]
 

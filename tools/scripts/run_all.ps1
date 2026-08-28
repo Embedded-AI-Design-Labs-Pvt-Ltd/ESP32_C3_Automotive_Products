@@ -36,6 +36,7 @@ $src = @(
     "$Root\platform\common\ae_error.c",
     "$Root\platform\framework\ae_ring.c",
     "$Root\platform\hal\hal_host.c",
+    "$Root\platform\drivers\posix\hal_can_usb.c",
     "$Root\platform\protocols\can_service.c",
     "$Root\platform\protocols\crc_e2e.c",
     "$Root\platform\protocols\isotp.c",
@@ -51,6 +52,7 @@ $src = @(
     "$Root\products\products_validation.c",
     "$Root\products\products_security_ota.c",
     "$Root\products\products_registry.c",
+    "$Root\products\usecases.c",
     "$Root\ports\arduino\aegw_runtime.c"
 )
 
@@ -82,6 +84,27 @@ $exeE2e = Join-Path $outDir "test_crc_e2e.exe"
 & gcc @cflags "$Root\platform\protocols\crc_e2e.c" "$Root\tests\unit\test_crc_e2e.c" -o $exeE2e
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 & $exeE2e
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+Write-Host "`n== 120 automotive/cyber use cases =="
+$exeUc = Join-Path $outDir "test_usecases.exe"
+& gcc @cflags @src "$Root\tests\unit\test_usecases.c" -o $exeUc
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+& $exeUc
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+Write-Host "`n== C++ CAN analyzer =="
+$exeCa = Join-Path $outDir "test_can_analyzer.exe"
+& g++ -std=c++17 -Wall -Wextra -Werror -DAE_HOST=1 @inc "$Root\tests\unit\test_can_analyzer.cpp" -o $exeCa
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+& $exeCa
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+Write-Host "`n== USB-CAN adapter (sim) =="
+$exeAd = Join-Path $outDir "test_can_adapter.exe"
+& gcc @cflags @src "$Root\tests\unit\test_can_adapter.c" -o $exeAd
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+& $exeAd
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 Write-Host "`n== DBC signal Python tests =="
@@ -137,6 +160,13 @@ $cxxflags = @("-std=c++17", "-Wall", "-Wextra", "-Werror", "-DAE_HOST=1") + $inc
     -o $exe3
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 & $exe3
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+Write-Host "`n== C++ USB-CAN adapter wrapper =="
+$exeAd2 = Join-Path $outDir "test_usb_can_adapter.exe"
+& g++ @cxxflags @objs "$Root\tests\unit\test_usb_can_adapter.cpp" -o $exeAd2
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+& $exeAd2
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 Write-Host "`n== CMake host tests =="
