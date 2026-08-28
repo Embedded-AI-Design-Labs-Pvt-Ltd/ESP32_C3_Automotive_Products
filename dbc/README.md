@@ -1,10 +1,11 @@
-﻿# dbc
+﻿# dbc/
 
-Scaffold for the Automotive CAN lab. Live implementations remain under `platform/`, `products/`, and `ports/` until this module is implemented (see `docs/architecture/directory_mapping.md`).
+Source of truth for lab signals: **`aegw_c3_proto.dbc`**.
 
-Classical CAN only on ESP32-C3. Lab/HIL only — not for road vehicles.
+IDs match `platform/common/ae_can_ids.h` (prototype / simulated — not OEM).
 
-**Status:** Not started
+Python pack helpers: `linux/python/aegw_can/signals.py`.
 
 ---
-**Embedded AI Design Labs Pvt Ltd** · Muhammad Samiullah · © 2026
+
+**Embedded AI Design Labs Pvt Ltd · Muhammad Samiullah · © 2026**

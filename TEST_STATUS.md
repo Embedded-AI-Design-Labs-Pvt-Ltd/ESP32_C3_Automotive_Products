@@ -2,40 +2,34 @@
 
 Last updated: 2026-08-28
 
-## Suite summary
+## Suites
 
-| Suite | Location | Status | Runner |
-|---|---|---|---|
-| Unit (host) | `tests/unit/` | **PASS** | `run_all.ps1` / CTest |
-| Product use-cases P01–P17 | `tests/unit/test_all_products.c` | **PASS** | `run_all.ps1` |
-| Coverage | `tests/unit/test_coverage.c` | **PASS** (100% fn / 98.20% lines) | llvm-cov |
-| Arduino HAL host | `tests/unit/test_arduino_hal.cpp` | **PASS** | `run_all.ps1` |
-| C++ ports | `tests/unit/test_cpp_ports.cpp` | **PASS** | `run_all.ps1` |
-| Docs links | `tools/scripts/verify_docs.py` | **PASS** | `run_all.ps1` |
-| Arduino MCU compile | `ports/arduino/AEGW_C3` | **PASS** | arduino-cli |
-| CMake CTest | `build/cmake` | **PASS** 4/4 | ctest -C Debug |
-| Integration | `tests/integration/` | Scaffold | — |
-| HIL | `tests/hil/` | Scaffold | — |
-| Fault injection | `tests/fault_injection/` | Scaffold | — |
-| Security | `tests/security/` | Scaffold | — |
-| Performance | `tests/performance/` | Scaffold | — |
-| Regression | `tests/regression/` | Scaffold | — |
-| Linux python-can | `linux/python/` | Scaffold | — |
+| Suite | Location | Status |
+|---|---|---|
+| Unit (host C) | `tests/unit/test_host.c` | PASS |
+| Products P01–P17 | `tests/unit/test_all_products.c` | PASS |
+| Module coverage | `tests/unit/test_coverage.c` | PASS (~98% lines) |
+| C++ ports | `tests/unit/test_cpp_ports.cpp` | PASS |
+| Arduino HAL host | `tests/unit/test_arduino_hal.cpp` | PASS |
+| CRC/E2E | `tests/unit/test_crc_e2e.c` | Added this phase |
+| DBC Python | `linux/python/tests/test_dbc_signals.py` | Added this phase |
+| Integration | `tests/integration/` | Scaffold |
+| HIL | `tests/hil/` | Scaffold |
+| Fault injection | `tests/fault_injection/` | Scaffold |
+| Security | `tests/security/` | Scaffold |
+| Performance | `tests/performance/` | Scaffold |
+| Regression | `tests/regression/` | Scaffold |
 
-## Test case template (new tests)
+## Case template (mandatory)
 
-| Field | Content |
-|---|---|
-| ID | TEST-LAB-xxx |
-| Requirement | REQ-LAB-xxx |
-| Setup / Input / Expected / Timeout / Pass-fail / Cleanup / Logs | required |
+`ID | requirement | setup | input | expected | timeout | pass/fail | logs`
 
-## Gaps
+## Environment
 
-- No SocketCAN / CANable / PCAN automated tests yet
-- No E2E CRC / OSAL concurrency suites yet
-- Security tests = lab traffic only
+- Host Windows: GCC/Clang + CMake — primary CI gate.
+- Linux + SocketCAN: required for HIL/adapter tests; not blocking host merges.
+- ESP32-C3 board: optional; never use Intel AMT SOL as flash port.
 
-## Last full run
+---
 
-2026-08-28 — `tools/scripts/run_all.ps1` exit 0 (~68 s).
+**Embedded AI Design Labs Pvt Ltd · Muhammad Samiullah · © 2026**

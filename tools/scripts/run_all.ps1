@@ -37,6 +37,7 @@ $src = @(
     "$Root\platform\framework\ae_ring.c",
     "$Root\platform\hal\hal_host.c",
     "$Root\platform\protocols\can_service.c",
+    "$Root\platform\protocols\crc_e2e.c",
     "$Root\platform\protocols\isotp.c",
     "$Root\platform\protocols\uds.c",
     "$Root\platform\services\dtc.c",
@@ -74,6 +75,18 @@ $exeC = Join-Path $outDir "test_coverage.exe"
 & gcc @cflags @src "$Root\tests\unit\test_coverage.c" -o $exeC
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 & $exeC
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+Write-Host "`n== CRC/E2E unit tests =="
+$exeE2e = Join-Path $outDir "test_crc_e2e.exe"
+& gcc @cflags "$Root\platform\protocols\crc_e2e.c" "$Root\tests\unit\test_crc_e2e.c" -o $exeE2e
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+& $exeE2e
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+Write-Host "`n== DBC signal Python tests =="
+$env:PYTHONPATH = (Join-Path $Root "linux\python")
+python (Join-Path $Root "linux\python\tests\test_dbc_signals.py")
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 Write-Host "`n== Arduino HAL host tests =="

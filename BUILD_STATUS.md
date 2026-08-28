@@ -1,36 +1,48 @@
 # BUILD_STATUS
 
-Last updated: 2026-08-28 (Agent 00 — W0 after `run_all.ps1`)
+Last updated: 2026-08-28 · Agent 00 orchestrator
 
 ## Targets
 
-| Target | Toolchain | Status |
+| Target | Command | Status |
 |---|---|---|
-| Host unit / products | GCC/Clang + `run_all.ps1` / CMake | **PASS** |
-| Arduino ESP32-C3 sketch | arduino-cli `esp32:esp32:esp32c3` | **PASS** compile (~325 KB) |
-| ESP-IDF firmware | eim ESP-IDF v5.5.1 | Installed; project CMake not wired yet |
-| Linux SocketCAN | can-utils / python-can | Scaffold only |
-| CI | GitHub Actions | Not started |
+| Host unit + products | `tools/scripts/run_all.ps1` | PASS (2026-08-28) |
+| CMake/CTest | `cmake` + `ctest -C Debug` (5 tests) | PASS |
+| CRC/E2E | `test_crc_e2e` | PASS |
+| DBC Python signals | `linux/python/tests/test_dbc_signals.py` | PASS |
+| Arduino ESP32-C3 compile | `arduino-cli` esp32c3 | PASS (~325 KB) |
+| ESP-IDF flash TWAI | `eim run "idf.py build" v5.5.1` in `ports/esp32_c3` | **NOT READY** (no IDF project) |
+| Linux SocketCAN HIL | `linux/socketcan/setup_can0.sh` | Scripts present; needs Linux + adapter |
+| Virtual ECU GUI | `python tools/gui/server.py` | PASS on :8765 |
 
-## Last `run_all.ps1` (2026-08-28)
+## Toolchain (developer PC)
 
-| Step | Result |
+| Tool | Status |
 |---|---|
-| Docs verify | PASS (15 HTML) |
-| Host unit | PASS |
-| 17 product use-cases | PASS |
-| Module coverage | PASS (100% functions, 98.20% lines) |
-| Arduino HAL host | PASS |
-| C++ ports | PASS |
-| CMake CTest (4) | PASS |
-| Arduino CLI ESP32-C3 | PASS compile |
+| Python 3.12 / 3.14 | Installed |
+| LLVM MinGW (gcc/clang) | Installed |
+| CMake | Installed |
+| Arduino CLI + esp32 3.3.11 | Installed |
+| ESP-IDF v5.5.1 via eim | Installed (selected) |
+| ESP USB serial drivers | Installed via `eim install-drivers` |
+| Cursor: clangd, CMake, Python, ESP-IDF ext | Installed |
 
-## Wave progress
+## Module build map
 
-| Wave | Status |
-|---|---|
-| W0 Orchestrator | **Complete** (status files + lab scaffold + mapping) |
-| W1 Hardware docs | Next |
-| W2 OSAL / HAL | Next after W1 |
+| Module | Compiles in host | Notes |
+|---|---|---|
+| `platform/*` protocols/services | Yes | Via `ae_platform` |
+| `crc_e2e` | Yes (this phase) | Unit tested |
+| `osal` | No | README only — next |
+| `platform/drivers/esp32` | No | TWAI pending |
+| `linux/python` | Syntax OK | Needs `python-can` on Linux |
 
-See `docs/architecture/can_lab_orchestrator.md`.
+## Known blockers
+
+1. No real ESP32-C3 USB COM in last session (Intel AMT COM3 is not the MCU).
+2. SocketCAN requires Linux (or WSL2 with USB passthrough).
+3. Do not claim CAN-FD on ESP32-C3.
+
+---
+
+**Embedded AI Design Labs Pvt Ltd · Muhammad Samiullah · © 2026**

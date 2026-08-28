@@ -1,88 +1,44 @@
-# AGENT 00 — Project Orchestrator Baseline
+# CAN Laboratory — Agent 00 Orchestrator
 
-**Date:** 2026-08-27  
-**Repository:** `ESP32_C3_Automotive_Products`  
-**Brand:** Embedded AI Design Labs Pvt Ltd  
-**Scope:** Automotive CAN ECU lab (ESP32-C3 Classical CAN/TWAI + Linux SocketCAN)
+**Embedded AI Design Labs Pvt Ltd** · Prototype lab (not ISO 26262 / WP.29 certified)
 
-## Governing decisions (frozen)
+## Governing decisions
 
-1. **Do not rewrite** the working host C stack in one pass. Live code stays in `platform/`, `products/`, `ports/`.
-2. New trees (`firmware/`, `linux/`, …) are **canonical lab layout** with READMEs that map to existing modules until code is moved carefully.
-3. ESP32-C3 = **Classical CAN only** (TWAI). **No CAN-FD** features on this MCU.
-4. Application / protocols / services must not include ESP-IDF, FreeRTOS, or pthread headers — only OSAL + HAL.
-5. External CAN transceiver is **required** (e.g. SN65HVD230 / TJA1051). TWAI alone is not a physical bus.
-6. Lab / virtual ECU / HIL only. **Never** connect experimental tools to a real road vehicle.
-7. Prototype ≠ certified: no ISO 26262 or UNECE R155 claims.
-8. No fake `return AE_OK` stubs. Empty modules get README + status = Not started.
-9. Common APIs are owned by Orchestrator: `ae_can_frame_t`, `ae_status_t`, `hal_can_*`, `can_svc_*`, `isotp_*`, `uds_*`, DTC/fault enums. Agents must not redefine them.
-10. One phase at a time: build → test → review → document → commit → update status files.
+1. **Portable core stays in `platform/` + `products/`**. Do not fork a second UDS/ISO-TP/CAN stack under `firmware/` or `linux/`.
+2. **`firmware/`** is the ESP-IDF packaging view (maps to `platform/` + `ports/esp32_c3/`). Empty of duplicate `.c` until IDF wiring is real.
+3. **`linux/`** is SocketCAN / python-can / HIL host tooling. It talks to the ECU over Classical CAN only (no CAN-FD on ESP32-C3).
+4. **Common types** are only those in `platform/common/ae_types.h`, `ae_can_ids.h`, `hal_can.h`. Agents must not redefine `ae_can_frame_t`.
+5. CAN IDs in `ae_can_ids.h` / `dbc/aegw_c3_proto.dbc` are **prototype/simulated**.
+6. Lab security and fault injection: **bench / Virtual ECU only**. Never on a road vehicle.
 
-## Physical architecture
+## Lab topology
 
 ```text
-ESP32-C3 ── TWAI TX/RX ── CAN transceiver (SN65HVD230/TJA1051)
-                              │
-                           CANH / CANL (+ 120 Ω termination as required)
-                              │
-                     CANable / PCAN-USB / USB-CAN
-                              │
-                     Linux SocketCAN (can0)
-                              │
-              python-can · can-utils · Wireshark · HIL scripts
+ESP32-C3 ECU  <->  SN65HVD230/TJA1051  <->  CANH/CANL  <->  CANable/PCAN-USB  <->  Linux PC (SocketCAN)
+                         |
+                    Virtual ECU / host HAL (no silicon)
 ```
 
-## Layered software (unchanged rule)
+ESP32-C3 TWAI = **Classical CAN only**. No CAN-FD features on the MCU path.
 
-```text
-Application / products
-        ↓
-Services (DTC, fault, health, security, OTA, ECU models)
-        ↓
-Protocols (CAN service, ISO-TP, UDS, OBD, E2E)
-        ↓
-Middleware / OSAL
-        ↓
-HAL
-        ↓
-Drivers (posix | esp32 TWAI)
-        ↓
-Hardware or virtual bus
-```
-
-## Live code vs lab layout
-
-| Lab path (target) | Current home (do not duplicate) |
-|---|---|
-| `firmware/hal` | `platform/hal/` |
-| `firmware/can` | `platform/protocols/can_service.*` + future TWAI driver |
-| `firmware/diagnostics` | `platform/protocols/{isotp,uds}.*` + `platform/services/dtc.*` |
-| `firmware/safety` | `platform/services/fault_mgr.*` + `docs/safety/` |
-| `firmware/application` | `products/` |
-| `firmware/bootloader` | conceptual / `ota_agent` only today |
-| `linux/*` | **new** — SocketCAN / python-can (not started) |
-| `dbc/` | **new** |
-| `ci/` | **new** (GitHub Actions later) |
-
-See [directory_mapping.md](directory_mapping.md).
-
-## Agent dependency order (execute in waves)
+## Agent dependency order (do not skip)
 
 ```mermaid
-flowchart TB
+flowchart TD
   A00[00 Orchestrator] --> A01[01 Hardware]
   A00 --> A02[02 BSP/HAL]
+  A01 --> A02
   A02 --> A03[03 TWAI driver]
   A03 --> A04[04 CAN service]
-  A00 --> A05[05 FreeRTOS/OSAL]
+  A02 --> A05[05 FreeRTOS/OSAL]
   A05 --> A04
   A04 --> A06[06 DBC/signals]
   A06 --> A07[07 Vehicle sim]
-  A06 --> A08[08 Powertrain]
-  A06 --> A09[09 VCU]
-  A06 --> A10[10 BMS]
-  A06 --> A11[11 BCM]
-  A06 --> A12[12 HVAC]
+  A07 --> A08[08 Powertrain]
+  A07 --> A09[09 VCU]
+  A07 --> A10[10 BMS]
+  A07 --> A11[11 BCM]
+  A07 --> A12[12 HVAC]
   A04 --> A13[13 ISO-TP]
   A13 --> A14[14 UDS]
   A14 --> A15[15 DTC]
@@ -95,16 +51,17 @@ flowchart TB
   A00 --> A22[22 PCAN]
   A21 --> A23[23 python-can]
   A22 --> A23
+  A06 --> A23
   A23 --> A24[24 Wireshark]
   A23 --> A25[25 HIL]
   A25 --> A26[26 Fault inject]
-  A16 --> A27[27 Cyber]
-  A27 --> A28[28 IDS]
+  A26 --> A27[27 Cyber lab]
+  A27 --> A28[28 CAN IDS]
   A14 --> A29[29 SecurityAccess]
-  A14 --> A30[30 OTA/boot]
-  A05 --> A31[31 Perf]
+  A14 --> A30[30 Boot/OTA]
+  A05 --> A31[31 Performance]
   A05 --> A32[32 Memory]
-  A21 --> A33[33 Linux scripts]
+  A23 --> A33[33 Linux scripts]
   A00 --> A34[34 Test eng]
   A34 --> A35[35 CI]
   A00 --> A36[36 Docs]
@@ -112,35 +69,50 @@ flowchart TB
   A37 --> A38[38 Integration]
 ```
 
-## Wave plan (do not skip)
+## Phase status (this repository)
 
-| Wave | Agents | Exit gate |
+| Phase | Agents | State |
 |---|---|---|
-| **W0** | 00 | Status files + mapping + frozen APIs — **this commit** |
-| **W1** | 01 Hardware docs | GPIO/transceiver docs reviewed |
-| **W2** | 02+05 OSAL/HAL/BSP | OSAL POSIX tests green; HAL contracts stable |
-| **W3** | 03+04 TWAI + CAN service | Host tests green; Arduino/IDF TWAI path documented |
-| **W4** | 06–12 signals + ECU models | DBC + encode/decode tests |
-| **W5** | 13–16 ISO-TP/UDS/DTC/E2E | Harden existing stacks + E2E module |
-| **W6** | 17–20 health/fault/safety/gateway | Health API + fault escalation |
-| **W7** | 21–24 Linux tooling | SocketCAN scripts + python-can (Linux host) |
-| **W8** | 25–28 HIL/fault/IDS | Lab-only security tests |
-| **W9** | 29–33 SA/OTA/perf/memory/scripts | Prototype update + benchmarks |
-| **W10** | 34–38 test/CI/docs/integration | CI green on POSIX; IDF optional |
+| L0 Orchestration + mapping | 00, 36 | **In progress** |
+| L1 Hardware + docs | 01 | Started |
+| L2 Host CRC/E2E + DBC | 06, 16 | Started |
+| L3 Linux SocketCAN/python | 21–23, 33 | Started (scripts; needs Linux HW) |
+| L4 OSAL POSIX | 05 | Next (see `osal/`) |
+| L5 ESP-IDF TWAI | 02, 03 | Not started |
+| L6 ISO-TP/UDS harden | 13–15, 29–30 | Partial (`platform/protocols`) |
+| L7 ECUs + HIL + security | 07–12, 25–28 | Partial models; HIL later |
+| L8 CI + integration | 34–38 | Partial host CMake |
 
-## Status dashboards
+## Interface freeze (do not redefine)
+
+| Interface | Owner path |
+|---|---|
+| CAN frame | `platform/common/ae_types.h` → `ae_can_frame_t` |
+| Prototype IDs | `platform/common/ae_can_ids.h` |
+| HAL CAN | `platform/hal/hal_can.h` |
+| CAN service | `platform/protocols/can_service.h` |
+| ISO-TP | `platform/protocols/isotp.h` |
+| UDS | `platform/protocols/uds.h` |
+| DTC / fault | `platform/services/dtc.h`, `fault_mgr.h` |
+| Product composition | `products/product_api.h` |
+| E2E/CRC | `platform/protocols/crc_e2e.h` (new) |
+| DBC source of truth | `dbc/aegw_c3_proto.dbc` |
+
+## Coding standards (summary)
+
+- C11 portable core; C++ at host edges only.
+- `ae_status_t` returns; no heap on RX/TX/ISO-TP/UDS paths.
+- No `pthread` / FreeRTOS / ESP-IDF in `products/` or `platform/protocols/` (OSAL/drivers only).
+- Tests: ID, setup, stimulus, expected, timeout, pass/fail.
+- No `return AE_OK` stub modules.
+
+## Status files
 
 - [BUILD_STATUS.md](../../BUILD_STATUS.md)
 - [REQUIREMENTS_TRACEABILITY.md](../../REQUIREMENTS_TRACEABILITY.md)
 - [TEST_STATUS.md](../../TEST_STATUS.md)
-
-## Next implementation (after W0)
-
-**Wave 1–2 start:** Hardware architecture doc (Agent 01) + OSAL POSIX (Agent 05 / existing `osal_engineer.md`).  
-Not BLE. Not MQTT. Not CAN-FD.
+- [directory_mapping.md](directory_mapping.md)
 
 ---
 
-**Embedded AI Design Labs Pvt Ltd**  
-Muhammad Samiullah — CTO & Founder  
-© 2026 Copyright. All rights reserved.
+**Muhammad Samiullah · CTO & Founder · © 2026**

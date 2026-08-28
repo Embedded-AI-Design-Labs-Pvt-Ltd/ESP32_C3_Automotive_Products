@@ -39,6 +39,7 @@ set(AE_PLATFORM_SRC
   platform/framework/ae_ring.c
   platform/hal/hal_host.c
   platform/protocols/can_service.c
+  platform/protocols/crc_e2e.c
   platform/protocols/isotp.c
   platform/protocols/uds.c
   platform/services/dtc.c
@@ -71,6 +72,9 @@ target_link_libraries(test_all_products PRIVATE ae_platform)
 add_executable(test_coverage tests/unit/test_coverage.c)
 target_link_libraries(test_coverage PRIVATE ae_platform)
 
+add_executable(test_crc_e2e tests/unit/test_crc_e2e.c)
+target_link_libraries(test_crc_e2e PRIVATE ae_platform)
+
 add_executable(test_cpp_ports
   tests/unit/test_cpp_ports.cpp
   ports/virtual_ecu/virtual_ecu.cpp
@@ -84,4 +88,5 @@ enable_testing()
 add_test(NAME test_host COMMAND test_host)
 add_test(NAME test_all_products COMMAND test_all_products)
 add_test(NAME test_coverage COMMAND test_coverage)
+add_test(NAME test_crc_e2e COMMAND test_crc_e2e)
 add_test(NAME test_cpp_ports COMMAND test_cpp_ports)

@@ -1,0 +1,31 @@
+name: host-tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  host:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install LLVM MinGW (winget)
+        run: |
+          winget install --id MartinStorsjo.LLVM-MinGW.UCRT -e --accept-package-agreements --accept-source-agreements --disable-interactivity
+        continue-on-error: true
+      - name: CMake configure/build/test
+        run: |
+          cmake -S . -B build/cmake
+          cmake --build build/cmake --config Debug
+          ctest --test-dir build/cmake -C Debug --output-on-failure
+      - name: Python DBC signals
+        run: |
+          $env:PYTHONPATH = "linux/python"
+          python linux/python/tests/test_dbc_signals.py
+      - name: Docs verify
+        run: python tools/scripts/verify_docs.py

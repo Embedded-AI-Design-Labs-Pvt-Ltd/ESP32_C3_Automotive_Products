@@ -1,0 +1,106 @@
+VERSION ""
+
+
+NS_ :
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_SGTYPE_
+	BA_DEF_SGTYPE_
+	SIGTYPE_VALTYPE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: BCM VCU BMS IC Gateway HVAC Tester
+
+
+BO_ 416 BCM_Status: 8 BCM
+ SG_ Ignition : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ Doors : 1|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ Lights : 8|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ VehicleSpeed : 16|8@1+ (1,0) [0|255] "km/h" Vector__XXX
+ SG_ AliveCounter : 56|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ CRC8 : 48|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 512 VCU_Heartbeat: 8 VCU
+ SG_ Ready : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ DriveMode : 1|3@1+ (1,0) [0|7] "" Vector__XXX
+ SG_ AliveCounter : 56|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ CRC8 : 48|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 513 VCU_Torque: 8 VCU
+ SG_ TorqueNm : 0|16@1- (1,0) [-32000|32000] "Nm" Vector__XXX
+ SG_ Brake : 16|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ AccelPedal : 24|8@1+ (0.4,0) [0|100] "%" Vector__XXX
+ SG_ AliveCounter : 56|4@1+ (1,0) [0|15] "" Vector__XXX
+ SG_ CRC8 : 48|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 768 BMS_Status: 8 BMS
+ SG_ PackVoltage : 0|16@1+ (0.1,0) [0|1000] "V" Vector__XXX
+ SG_ PackCurrent : 16|16@1- (0.1,0) [-1000|1000] "A" Vector__XXX
+ SG_ SOC : 32|8@1+ (1,0) [0|100] "%" Vector__XXX
+ SG_ SOH : 40|8@1+ (1,0) [0|100] "%" Vector__XXX
+
+BO_ 770 BMS_Temp: 8 BMS
+ SG_ TempMin : 0|8@1- (1,0) [-40|125] "degC" Vector__XXX
+ SG_ TempMax : 8|8@1- (1,0) [-40|125] "degC" Vector__XXX
+
+BO_ 1440 TPMS: 8 Gateway
+ SG_ P_FL : 0|16@1+ (1,0) [0|500] "kPa" Vector__XXX
+ SG_ P_FR : 16|16@1+ (1,0) [0|500] "kPa" Vector__XXX
+ SG_ P_RL : 32|16@1+ (1,0) [0|500] "kPa" Vector__XXX
+ SG_ P_RR : 48|16@1+ (1,0) [0|500] "kPa" Vector__XXX
+
+BO_ 2016 UDS_Request: 8 Tester
+ SG_ Data0 : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ Data1 : 8|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ Data2 : 16|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ Data3 : 24|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ Data4 : 32|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ Data5 : 40|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ Data6 : 48|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ Data7 : 56|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 2024 UDS_Response: 8 Gateway
+ SG_ Data0 : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ Data1 : 8|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ Data2 : 16|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ Data3 : 24|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ Data4 : 32|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ Data5 : 40|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ Data6 : 48|8@1+ (1,0) [0|255] "" Vector__XXX
+ SG_ Data7 : 56|8@1+ (1,0) [0|255] "" Vector__XXX
+
+CM_ "AEGW-C3 prototype DBC. IDs match platform/common/ae_can_ids.h. Not OEM.";
+CM_ BU_ BCM "Body Control Module (simulated)";
+CM_ BU_ VCU "Vehicle Control Unit (simulated)";
+CM_ BU_ BMS "Battery Management (simulated)";
+BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
+BA_DEF_DEF_  "GenMsgCycleTime" 100;
+BA_ "GenMsgCycleTime" BO_ 416 100;
+BA_ "GenMsgCycleTime" BO_ 512 50;
+BA_ "GenMsgCycleTime" BO_ 513 10;
+BA_ "GenMsgCycleTime" BO_ 768 100;
+BA_ "GenMsgCycleTime" BO_ 770 100;
+VAL_ 512 DriveMode 0 "Off" 1 "Drive" 2 "Regen" 3 "Limp" 4 "Charge";

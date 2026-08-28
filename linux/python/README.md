@@ -1,10 +1,14 @@
-﻿# linux/python
+﻿# linux/python — AEGW-C3 CAN automation
 
-Scaffold for the Automotive CAN lab. Live implementations remain under `platform/`, `products/`, and `ports/` until this module is implemented (see `docs/architecture/directory_mapping.md`).
+```bash
+# Signal unit tests (no adapter):
+python linux/python/tests/test_dbc_signals.py
 
-Classical CAN only on ESP32-C3. Lab/HIL only — not for road vehicles.
+# Optional on Linux with adapter:
+pip install python-can
+python -m aegw_can.cli --iface can0 dump
+```
 
-**Status:** Not started
+Run from `linux/python` or set `PYTHONPATH=linux/python`.
 
----
-**Embedded AI Design Labs Pvt Ltd** · Muhammad Samiullah · © 2026
+Classical CAN only. Lab/bench use only.

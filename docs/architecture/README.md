@@ -16,6 +16,12 @@ This folder is the **STEP 0 / STEP 1** baseline for the three-target platform. I
 | [development_phases.md](development_phases.md) | Ordered phases; POSIX first |
 | [test_strategy.md](test_strategy.md) | Unit through HIL and fault injection |
 | [agent_breakdown.md](agent_breakdown.md) | Cursor agents and rules |
+| [can_lab_orchestrator.md](can_lab_orchestrator.md) | Agent 00 CAN lab roadmap (38 agents) |
+| [directory_mapping.md](directory_mapping.md) | firmware/linux playbook ↔ live tree |
+
+Status dashboards: [BUILD_STATUS.md](../../BUILD_STATUS.md), [REQUIREMENTS_TRACEABILITY.md](../../REQUIREMENTS_TRACEABILITY.md), [TEST_STATUS.md](../../TEST_STATUS.md).
+
+Hardware: [docs/hardware/hardware_architecture.md](../hardware/hardware_architecture.md).
 
 **Governing rules**
 

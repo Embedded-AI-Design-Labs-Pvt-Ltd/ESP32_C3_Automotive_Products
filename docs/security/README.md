@@ -1,10 +1,13 @@
-﻿# docs/security
+﻿# Security (lab)
 
-Scaffold for the Automotive CAN lab. Live implementations remain under `platform/`, `products/`, and `ports/` until this module is implemented (see `docs/architecture/directory_mapping.md`).
+Prototype CAN monitoring and diagnostic security for **bench / Virtual ECU only**.
 
-Classical CAN only on ESP32-C3. Lab/HIL only — not for road vehicles.
+- Do not connect to road vehicles.
+- Not UNECE R155 / WP.29 certified.
+- P14 product is an allow-list prototype; full IDS is planned (`can_lab_orchestrator` agents 27–28).
 
-**Status:** Not started
+See `.cursor/rules/security.mdc`.
 
 ---
-**Embedded AI Design Labs Pvt Ltd** · Muhammad Samiullah · © 2026
+
+**Embedded AI Design Labs Pvt Ltd · Muhammad Samiullah · © 2026**

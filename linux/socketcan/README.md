@@ -1,10 +1,28 @@
-﻿# linux/socketcan
+﻿# SocketCAN / CANable / PCAN (Linux)
 
-Scaffold for the Automotive CAN lab. Live implementations remain under `platform/`, `products/`, and `ports/` until this module is implemented (see `docs/architecture/directory_mapping.md`).
+ESP32-C3 lab uses **Classical CAN only** (no CAN-FD).
 
-Classical CAN only on ESP32-C3. Lab/HIL only — not for road vehicles.
+## Quick start (CANable candleLight → can0)
 
-**Status:** Not started
+```bash
+sudo linux/socketcan/setup_can0.sh can0 500000
+candump can0
+cansend can0 200#0100000000000010
+```
 
----
-**Embedded AI Design Labs Pvt Ltd** · Muhammad Samiullah · © 2026
+## PCAN-USB
+
+```bash
+# After peak_usb module loads can0/can1:
+sudo linux/socketcan/setup_can0.sh can0 500000
+```
+
+See [PCAN.md](PCAN.md) for driver differences.
+
+## Wireshark
+
+Capture on `can0` with SocketCAN link type. Filter example: `can.id == 0x200`.
+
+## Safety
+
+Bench / Virtual ECU only. Never attach experimental tooling to a road vehicle.

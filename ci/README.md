@@ -1,10 +1,9 @@
-﻿# ci
+﻿# CI
 
-Scaffold for the Automotive CAN lab. Live implementations remain under `platform/`, `products/`, and `ports/` until this module is implemented (see `docs/architecture/directory_mapping.md`).
+GitHub Actions: `.github/workflows/host-tests.yml` runs host CMake/CTest, DBC Python tests, and docs verify.
 
-Classical CAN only on ESP32-C3. Lab/HIL only — not for road vehicles.
-
-**Status:** Not started
+Hardware HIL and ESP-IDF builds are optional later jobs (not required to merge portable C).
 
 ---
-**Embedded AI Design Labs Pvt Ltd** · Muhammad Samiullah · © 2026
+
+**Embedded AI Design Labs Pvt Ltd · Muhammad Samiullah · © 2026**

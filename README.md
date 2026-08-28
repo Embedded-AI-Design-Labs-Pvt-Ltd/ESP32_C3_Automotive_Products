@@ -13,6 +13,8 @@ One reusable embedded platform. Seventeen product applications assembled from th
 
 Portable C services must not call pthread, FreeRTOS, or ESP-IDF — only OSAL and HAL. Architecture: [docs/architecture/](docs/architecture/README.md).
 
+**CAN lab (Classical CAN only):** external transceiver required · [hardware](docs/hardware/hardware_architecture.md) · [orchestrator](docs/architecture/can_lab_orchestrator.md) · [DBC](dbc/aegw_c3_proto.dbc) · [BUILD_STATUS](BUILD_STATUS.md) · [traceability](REQUIREMENTS_TRACEABILITY.md).
+
 This repository is **not** seventeen separate products. It is one core platform plus thin product compositions.
 
 ## Run locally

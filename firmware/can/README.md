@@ -1,10 +1,16 @@
 ﻿# firmware/can
 
-Scaffold for the Automotive CAN lab. Live implementations remain under `platform/`, `products/`, and `ports/` until this module is implemented (see `docs/architecture/directory_mapping.md`).
+Maps to live modules:
 
-Classical CAN only on ESP32-C3. Lab/HIL only — not for road vehicles.
+- `platform/protocols/can_service.*`
+- `platform/protocols/crc_e2e.*`
+- `platform/hal/hal_can.h`
+- Future: `platform/drivers/esp32` TWAI
 
-**Status:** Not started
+Classical CAN only on ESP32-C3.
+
+**Status:** Host CAN service + E2E helpers implemented; TWAI driver pending.
 
 ---
-**Embedded AI Design Labs Pvt Ltd** · Muhammad Samiullah · © 2026
+
+**Embedded AI Design Labs Pvt Ltd · Muhammad Samiullah · © 2026**
